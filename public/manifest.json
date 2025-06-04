@@ -14,8 +14,7 @@
     "http://localhost/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -23,7 +22,9 @@
         "https://www.urban-rivals.com/*",
         "https://www.urban-rivals.com/game/play/webgl/"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "css": [],
       "run_at": "document_end"
     }
@@ -56,11 +57,18 @@
         "assets/images/*.jpg",
         "assets/images/*.svg"
       ],
-      "matches": ["https://www.urban-rivals.com/*"]
+      "matches": [
+        "https://www.urban-rivals.com/*"
+      ]
     },
     {
-      "resources": ["icons/*.png", "ml-models/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "icons/*.png",
+        "ml-models/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "minimum_chrome_version": "88",
@@ -71,4 +79,4 @@
       "file:///D:/Urban%20Rivals/demo.html"
     ]
   }
-} 
+}
