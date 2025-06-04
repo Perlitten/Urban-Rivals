@@ -1,0 +1,84 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Modern Cursor Rules Generator
+
+## Rule Types & Frontmatter
+
+### Always Rules (Global)
+```
+---
+description: 
+globs: 
+alwaysApply: true
+---
+```
+Applied to every chat and cmd-k request.
+
+### Auto-Attached Rules (File-Based)
+```
+---
+description: 
+globs: *.ts, *.tsx, src/**/*.js
+alwaysApply: false
+---
+```
+Automatically included when matching files are referenced.
+
+### Agent-Requested Rules (Smart Selection)
+```
+---
+description: Detailed context about when this rule applies - scenarios, impact areas, why important
+globs: 
+alwaysApply: false
+---
+```
+AI decides when to apply based on description.
+
+### Manual Rules (Explicit Reference)
+```
+---
+description: 
+globs: 
+alwaysApply: false
+---
+```
+Only included when explicitly mentioned with @ruleName.
+
+## Critical Standards
+
+- **Location**: `.cursor/rules/` directory only
+- **Extension**: `.mdc` files only  
+- **Frontmatter**: All 3 fields required (description, globs, alwaysApply)
+- **Content**: Focus on actionable directives, include valid/invalid examples
+- **Length**: Target under 50 lines, maximum 100 lines
+- **Organization**: Use logical subdirectories (core/, lang/, ui/, etc.)
+
+## Rule Creation Process
+
+1. **Check Existing**: Search all `.cursor/rules/**/*.mdc` for similar rules
+2. **Determine Type**: Choose appropriate rule type based on usage
+3. **Write Description**: For agent rules, provide comprehensive context
+4. **Add Examples**: Always include valid and invalid examples
+5. **Test Rule**: Verify rule works as expected
+
+<example>
+// Good: Agent rule with detailed description
+---
+description: Apply when creating or modifying TypeScript interfaces, classes, or type definitions. Ensures type safety, proper naming conventions, and comprehensive documentation for complex type structures.
+globs: 
+alwaysApply: false
+---
+</example>
+
+<example type="invalid">
+// Bad: Vague description that AI can't use effectively
+---
+description: TypeScript stuff
+globs: 
+alwaysApply: false
+---
+</example>
+

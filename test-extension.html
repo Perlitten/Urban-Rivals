@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Connection Diagnostics</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .diagnostic-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .error-details {
+            background: #ffebee;
+            border: 1px solid #e57373;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Urban Rivals Extension Diagnostics</h1>
+        
+        <div class="instructions">
+            <h3>📋 Инструкции для устранения неполадок:</h3>
+            <ol>
+                <li>Убедитесь, что расширение загружено в <code>chrome://extensions/</code></li>
+                <li>Включите "Режим разработчика" (Developer mode)</li>
+                <li>Проверьте, что расширение включено (toggle ON)</li>
+                <li>Нажмите кнопки ниже для диагностики</li>
+            </ol>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>🏥 Базовая диагностика</h3>
+            <div id="basicStatus" class="status info">Ожидание проверки...</div>
+            <button onclick="runBasicDiagnostics()">🔍 Запустить базовую диагностику</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>🔌 Поиск расширения</h3>
+            <div id="extensionSearchStatus" class="status info">Ожидание поиска...</div>
+            <button onclick="searchForExtension()">🔍 Найти расширение</button>
+            <div id="foundExtensions"></div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>📞 Тест коммуникации</h3>
+            <div id="communicationStatus" class="status info">Ожидание тестирования...</div>
+            <button onclick="testCommunication()">📡 Тестировать связь</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>🎯 Chrome Extensions Info</h3>
+            <div id="chromeExtensionsInfo" class="status info">Нажмите для проверки</div>
+            <button onclick="checkChromeExtensions()">🔍 Проверить Extensions API</button>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>📋 Детальный лог</h3>
+            <button onclick="clearLog()">🗑️ Очистить лог</button>
+            <div id="diagnosticLog" class="log">Лог будет появляться здесь...</div>
+        </div>
+
+        <div class="diagnostic-section">
+            <h3>🔧 Решения проблем</h3>
+            <div id="solutions"></div>
+        </div>
+    </div>
+
+    <script>
+        let logElement = null;
+        let foundExtensionId = null;
+
+        // Initialize logging
+        function initLogging() {
+            logElement = document.getElementById('diagnosticLog');
+            log('🔧 Diagnostic script initialized');
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            console.log(logMessage);
+            
+            if (logElement) {
+                logElement.innerHTML += logMessage + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            if (logElement) {
+                logElement.innerHTML = '';
+            }
+        }
+
+        // Basic diagnostics
+        async function runBasicDiagnostics() {
+            log('🔍 Starting basic diagnostics...');
+            
+            // Check Chrome API availability
+            if (typeof chrome === 'undefined') {
+                updateStatus('basicStatus', '❌ Chrome API недоступен', 'error');
+                log('❌ Chrome API is not available');
+                return false;
+            }
+            
+            if (!chrome.runtime) {
+                updateStatus('basicStatus', '❌ chrome.runtime недоступен', 'error');
+                log('❌ chrome.runtime is not available');
+                return false;
+            }
+            
+            log('✅ Chrome APIs available');
+            updateStatus('basicStatus', '✅ Chrome APIs доступны', 'success');
+            return true;
+        }
+
+        // Search for working extensions
+        async function searchForExtension() {
+            log('🔍 Starting extension search...');
+            updateStatus('extensionSearchStatus', 'Поиск расширений...', 'info');
+            
+            const basicOk = await runBasicDiagnostics();
+            if (!basicOk) {
+                updateStatus('extensionSearchStatus', '❌ Базовая диагностика не прошла', 'error');
+                return;
+            }
+
+            // List of possible extension IDs to test
+            const testIds = [
+                'eoggfhdgnpmmbglniapcifoigpkeadkg', // Hardcoded ID
+                // We'll try some common patterns for unpacked extensions
+            ];
+
+            log(`📋 Testing ${testIds.length} potential extension IDs...`);
+            
+            let foundAny = false;
+            
+            for (const extensionId of testIds) {
+                log(`🔍 Testing extension ID: ${extensionId}`);
+                
+                try {
+                    const response = await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                            reject(new Error('Timeout after 3 seconds'));
+                        }, 3000);
+                        
+                        chrome.runtime.sendMessage(extensionId, { type: 'PING' }, (response) => {
+                            clearTimeout(timeout);
+                            
+                            if (chrome.runtime.lastError) {
+                                reject(chrome.runtime.lastError);
+                            } else {
+                                resolve(response);
+                            }
+                        });
+                    });
+                    
+                    if (response && response.pong) {
+                        log(`✅ Found working extension: ${extensionId}`);
+                        foundExtensionId = extensionId;
+                        foundAny = true;
+                        
+                        updateStatus('extensionSearchStatus', `✅ Найдено: ${extensionId.substring(0, 8)}...`, 'success');
+                        
+                        // Display extension details
+                        const foundDiv = document.getElementById('foundExtensions');
+                        foundDiv.innerHTML = `
+                            <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                                <strong>✅ Найдено рабочее расширение:</strong><br>
+                                <code>ID: ${extensionId}</code><br>
+                                <strong>Response:</strong> ${JSON.stringify(response, null, 2)}
+                            </div>
+                        `;
+                        break;
+                    }
+                } catch (error) {
+                    log(`❌ Extension ID ${extensionId} failed: ${error.message}`);
+                }
+            }
+            
+            if (!foundAny) {
+                updateStatus('extensionSearchStatus', '❌ Рабочие расширения не найдены', 'error');
+                log('❌ No working extensions found');
+                
+                showSolutions([
+                    '1. Проверьте, что расширение загружено в chrome://extensions/',
+                    '2. Убедитесь, что расширение включено (toggle ON)',
+                    '3. Проверьте, что "Режим разработчика" включен',
+                    '4. Попробуйте перезагрузить расширение (кнопка 🔄)',
+                    '5. Проверьте консоль background script на ошибки'
+                ]);
+            }
+        }
+
+        // Test communication with found extension
+        async function testCommunication() {
+            if (!foundExtensionId) {
+                updateStatus('communicationStatus', '❌ Сначала найдите расширение', 'error');
+                log('❌ No extension found for communication test');
+                return;
+            }
+            
+            log('📡 Testing communication with found extension...');
+            updateStatus('communicationStatus', 'Тестирование связи...', 'info');
+            
+            try {
+                // Test PING
+                log('📤 Sending PING...');
+                const pingResponse = await sendMessage(foundExtensionId, { type: 'PING' });
+                log(`📥 PING Response: ${JSON.stringify(pingResponse)}`);
+                
+                // Test GET_PREFERENCES
+                log('📤 Sending GET_PREFERENCES...');
+                const prefsResponse = await sendMessage(foundExtensionId, { type: 'GET_PREFERENCES' });
+                log(`📥 Preferences Response: ${JSON.stringify(prefsResponse)}`);
+                
+                // Test ML status
+                log('📤 Sending GET_ML_STRATEGY_STATUS...');
+                const mlResponse = await sendMessage(foundExtensionId, { type: 'GET_ML_STRATEGY_STATUS' });
+                log(`📥 ML Status Response: ${JSON.stringify(mlResponse)}`);
+                
+                updateStatus('communicationStatus', '✅ Все тесты связи прошли успешно', 'success');
+                log('✅ All communication tests passed');
+                
+            } catch (error) {
+                updateStatus('communicationStatus', `❌ Ошибка связи: ${error.message}`, 'error');
+                log(`❌ Communication error: ${error.message}`);
+            }
+        }
+
+        // Helper function to send messages
+        function sendMessage(extensionId, message) {
+            return new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Message timeout after 5 seconds'));
+                }, 5000);
+                
+                chrome.runtime.sendMessage(extensionId, message, (response) => {
+                    clearTimeout(timeout);
+                    
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(response);
+                    }
+                });
+            });
+        }
+
+        // Check Chrome Extensions API
+        function checkChromeExtensions() {
+            log('🔍 Checking Chrome Extensions API...');
+            
+            const info = [];
+            
+            info.push(`User Agent: ${navigator.userAgent}`);
+            info.push(`Chrome: ${typeof chrome !== 'undefined' ? 'Available' : 'Not Available'}`);
+            
+            if (typeof chrome !== 'undefined') {
+                info.push(`chrome.runtime: ${chrome.runtime ? 'Available' : 'Not Available'}`);
+                
+                if (chrome.runtime) {
+                    info.push(`chrome.runtime.id: ${chrome.runtime.id || 'undefined'}`);
+                    info.push(`chrome.runtime.sendMessage: ${typeof chrome.runtime.sendMessage}`);
+                }
+            }
+            
+            const infoDiv = document.getElementById('chromeExtensionsInfo');
+            infoDiv.innerHTML = info.map(i => `<div>${i}</div>`).join('');
+            
+            info.forEach(i => log(`ℹ️ ${i}`));
+        }
+
+        // Show solutions
+        function showSolutions(solutions) {
+            const solutionsDiv = document.getElementById('solutions');
+            const solutionsList = solutions.map(s => `<li>${s}</li>`).join('');
+            
+            solutionsDiv.innerHTML = `
+                <div class="error-details">
+                    <h4>🔧 Рекомендуемые решения:</h4>
+                    <ol>${solutionsList}</ol>
+                    <p><strong>Для дополнительной диагностики:</strong></p>
+                    <ul>
+                        <li>Откройте <code>chrome://extensions/</code></li>
+                        <li>Найдите "Urban Rivals ML Consultant"</li>
+                        <li>Нажмите "Инспектировать" рядом с "Service worker"</li>
+                        <li>Проверьте консоль на ошибки</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Auto-run diagnostics on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initLogging();
+            log('📋 Page loaded, ready for diagnostics');
+            
+            // Auto-run basic diagnostics after 1 second
+            setTimeout(() => {
+                log('🚀 Auto-running basic diagnostics...');
+                runBasicDiagnostics().then(success => {
+                    if (success) {
+                        setTimeout(searchForExtension, 1000);
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Rivals ML Consultant - Demo</title>
+    <style>
+        /* Reset and Base Styles */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Changed font */
+            line-height: 1.7; /* Increased line-height */
+            margin: 0;
+            padding: 0; /* Removed body padding, will be handled by sections */
+            background: #f4f7f6; /* Lighter, cleaner background */
+            color: #4A4A4A; /* Softer text color */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1280px; /* Slightly wider container */
+            margin: 0 auto;
+            background: white;
+            border-radius: 0; /* Full width, or rounded if preferred later */
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); /* Softer shadow */
+            overflow: hidden;
+            flex-grow: 1; /* Allows footer to stick to bottom */
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Kept original, good gradient */
+            color: white;
+            padding: 50px 40px; /* Increased padding */
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 3em; /* Larger title */
+            font-weight: 700; /* Bolder */
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: 300; /* Lighter subtitle */
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        /* Status Card */
+        .status-card {
+            background: linear-gradient(135deg, #5facff 0%, #2980b9 100%); /* New gradient */
+            color: white;
+            padding: 25px; /* Increased padding */
+            border-radius: 12px; /* More rounded */
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(41, 128, 185, 0.3); /* Shadow related to card color */
+        }
+        .status-card h2 {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .status-card .status-item { /* New style for status items */
+            margin-bottom: 10px;
+        }
+        .status-card .status-item:last-child {
+            margin-bottom: 20px; /* More space before button */
+        }
+
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly smaller min for more responsiveness */
+            gap: 30px; /* Increased gap */
+            margin-bottom: 50px; /* Increased margin */
+        }
+
+        .feature-card {
+            background: #ffffff; /* Keep it white for contrast */
+            border-radius: 12px; /* More rounded */
+            padding: 30px; /* Increased padding */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08); /* Softer shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e9ecef; /* Subtle border */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px); /* More pronounced hover effect */
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12); /* Enhanced shadow on hover */
+        }
+
+        .feature-icon {
+            font-size: 2.8em; /* Slightly smaller if using emojis, can be larger for SVGs */
+            margin-bottom: 20px;
+            display: block;
+            color: #667eea; /* Icon color tied to theme */
+        }
+
+        .feature-title {
+            font-size: 1.4em; /* Slightly larger */
+            font-weight: 600; /* Bolder */
+            margin-bottom: 12px;
+            color: #343a40; /* Darker title */
+        }
+
+        .feature-description {
+            color: #555; /* Slightly darker for better readability */
+            line-height: 1.6;
+            margin-bottom: 15px; /* Add margin for button space */
+        }
+
+        /* Demo Section */
+        .demo-section {
+            background: #e9f7ef; /* Softer green */
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .demo-section h3 {
+            color: #28a745; /* Bootstrap success green */
+            margin-top: 0;
+            margin-bottom: 20px; /* Added margin */
+            font-weight: 600;
+        }
+
+        .mock-battle {
+            background: white;
+            border: 1px solid #dee2e6; /* Softer border */
+            border-radius: 10px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .mock-cards {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px; /* Adjusted margin */
+            margin-bottom: 20px; /* Added margin */
+        }
+
+        .mock-card {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%); /* Softer pink/red */
+            color: white;
+            padding: 15px 20px; /* Adjusted padding */
+            border-radius: 8px;
+            min-width: 110px; /* Adjusted min-width */
+            text-align: center;
+            font-weight: 600; /* Bolder */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 0.95em;
+        }
+
+        .recommendation {
+            background: #fff9e0; /* Lighter yellow */
+            border: 1px solid #ffefb3; /* Softer border */
+            border-radius: 8px; /* More rounded */
+            padding: 20px;
+            margin: 20px 0; /* Adjusted margin */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .recommendation strong {
+            color: #5d5330; /* Darker text for strong */
+        }
+
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); /* Info blue/teal */
+            color: white;
+            border: none;
+            padding: 12px 30px; /* Adjusted padding */
+            border-radius: 50px; /* Pill shape */
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600; /* Bolder */
+            text-transform: uppercase; /* Uppercase text */
+            letter-spacing: 0.5px; /* Added letter spacing */
+            transition: all 0.3s ease;
+            margin: 10px 5px; /* Adjusted margin */
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.25);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px); /* More lift */
+            box-shadow: 0 7px 20px rgba(23, 162, 184, 0.4); /* Enhanced shadow */
+            background: linear-gradient(135deg, #138496 0%, #117a8b 100%); /* Darken on hover */
+        }
+
+        /* Installation Steps */
+        .installation-steps {
+            background: #e6f4ff; /* Lighter blue */
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px; /* Adjusted margin */
+        }
+
+        .installation-steps h3 {
+            color: #007bff; /* Bootstrap primary blue */
+            margin-top: 0;
+            margin-bottom: 20px; /* Added margin */
+            font-weight: 600;
+        }
+
+        .step {
+            background: white;
+            border-left: 5px solid #007bff; /* Thicker border */
+            padding: 18px 20px; /* Adjusted padding */
+            margin: 12px 0; /* Adjusted margin */
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease;
+        }
+        .step:hover {
+            background-color: #f8f9fa; /* Slight hover background */
+        }
+
+        .step strong {
+            color: #0056b3; /* Darker blue for strong */
+            font-weight: 600;
+        }
+        .step code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        }
+
+        /* Footer */
+        .footer {
+            background: #343a40; /* Dark grey, Bootstrap-like */
+            color: #adb5bd; /* Lighter grey for text */
+            text-align: center;
+            padding: 30px 20px; /* Increased padding */
+            /* margin-top: auto; Removed, flex-grow on container handles this */
+        }
+        .footer p {
+            margin: 8px 0; /* Adjusted margin */
+            font-size: 0.95em;
+        }
+        .footer p:first-child {
+            font-weight: 500;
+            color: #ced4da;
+        }
+
+
+        /* Status Text */
+        #extensionStatus {
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 8px 0; /* Added padding */
+        }
+
+        .status-connected {
+            color: #c8e6c9; /* Lighter green for better contrast on dark blue */
+        }
+
+        .status-disconnected {
+            color: #ffcdd2; /* Lighter red for better contrast */
+        }
+        .status-optimal { /* New style for ML status */
+            color: #a5d6a7; /* Soft green */
+        }
+        .status-suboptimal { /* New style for ML status */
+            color: #ef9a9a; /* Soft red */
+        }
+
+        /* Utility for centering text if needed */
+        .text-center {
+            text-align: center;
+        }
+        
+        /* Adding a Google Font (Roboto) */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        /* Styles for dynamic content in feature cards */
+        .feature-output {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .feature-output h5 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #007bff; /* Primary color for headings */
+        }
+        .feature-output ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .feature-output li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .feature-output li:last-child {
+            border-bottom: none;
+        }
+        .feature-output strong {
+            color: #28a745; /* Success color for positive highlights */
+        }
+        .feature-output .reasoning {
+            font-style: italic;
+            color: #6c757d; /* Muted color for reasoning */
+            margin-top: 8px;
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Urban Rivals ML Consultant</h1>
+            <p>Искусственный интеллект для повышения ваших игровых навыков</p>
+        </div>
+
+        <div class="content">
+            <div class="status-card">
+                <h2>Статус системы</h2>
+                <div class="status-item">
+                    <strong>Расширение:</strong> <span id="extensionStatus">Проверка подключения...</span>
+                </div>
+                <div class="status-item">
+                    <strong>ML Стратегия:</strong> <span id="mlStrategyStatus">Оценка...</span>
+                </div>
+                <button class="btn" onclick="checkSystemStatus()">🔄 Обновить статус</button>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-target"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                    </span>
+                    <div class="feature-title">Battle Assistant</div>
+                    <div class="feature-description">
+                        Анализ текущего боя в реальном времени. Рекомендации по выбору карт, 
+                        расчету пиллс и прогнозирование результата.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    </span>
+                    <div class="feature-title">Deck Builder</div>
+                    <div class="feature-description">
+                        Оптимизация колоды на основе мета-анализа. Предложения по замене карт 
+                        для улучшения синергии и эффективности.
+                    </div>
+                    <button class="btn" onclick="simulateDeckOptimization()">💡 Оптимизировать</button>
+                    <div class="feature-output" id="deckSuggestion" style="display:none;"></div>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </span>
+                    <div class="feature-title">Market Analyzer</div>
+                    <div class="feature-description">
+                        Анализ рынка карт, прогнозирование цен и поиск выгодных предложений 
+                        для покупки и продажи.
+                    </div>
+                    <button class="btn" onclick="simulateMarketAnalysis()">📈 Анализ рынка</button>
+                    <div class="feature-output" id="marketAnalysis" style="display:none;"></div>
+                </div>
+
+                <div class="feature-card">
+                    <span class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </span>
+                    <div class="feature-title">Analytics Dashboard</div>
+                    <div class="feature-description">
+                        Детальная статистика игры, анализ прогресса и рекомендации 
+                        по улучшению игровой стратегии.
+                    </div>
+                    <button class="btn" onclick="simulatePlayerStats()">📊 Моя статистика</button>
+                    <div class="feature-output" id="playerStats" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h3>🎮 Демо: Battle Assistant</h3>
+                <div class="mock-battle">
+                    <h4>Текущий бой (Ваши карты):</h4>
+                    <div class="mock-cards" id="mockPlayerHand">
+                        <!-- Карты будут добавлены JavaScript -->
+                    </div>
+                    
+                    <div class="recommendation" id="battleRecommendation">
+                        Нажмите "Симулировать бой", чтобы получить рекомендацию.
+                    </div>
+                    
+                    <button class="btn" onclick="simulateBattle()">⚔️ Следующий сценарий</button>
+                </div>
+            </div>
+
+            <div class="installation-steps">
+                <h3>📦 Быстрая установка</h3>
+                
+                <div class="step">
+                    <strong>Шаг 1:</strong> Откройте Chrome и перейдите в <code>chrome://extensions/</code>
+                </div>
+                
+                <div class="step">
+                    <strong>Шаг 2:</strong> Включите "Режим разработчика" в правом верхнем углу
+                </div>
+                
+                <div class="step">
+                    <strong>Шаг 3:</strong> Нажмите "Загрузить распакованное расширение" и выберите папку <code>dist</code>
+                </div>
+                
+                <div class="step">
+                    <strong>Шаг 4:</strong> Перейдите на urbanrivals.com и начните использовать ML консультанта!
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🔒 Все вычисления выполняются локально в браузере. Ваши данные остаются приватными.</p>
+            <p>Версия: 1.0.0 | Создано с ❤️ для сообщества Urban Rivals</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect extension ID instead of hardcoding
+        let WORKING_EXTENSION_ID = null;
+        
+        // Auto-detect working extension ID
+        async function findWorkingExtensionId() {
+            const possibleIds = [
+                'eoggfhdgnpmmbglniapcifoigpkeadkg', // Previous hardcoded ID
+                // Chrome generates random IDs for unpacked extensions
+                // We'll try to find the working one
+            ];
+            
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                for (const extensionId of possibleIds) {
+                    try {
+                        const response = await new Promise((resolve, reject) => {
+                            chrome.runtime.sendMessage(extensionId, { type: 'PING' }, (response) => {
+                                if (chrome.runtime.lastError) {
+                                    reject(chrome.runtime.lastError);
+                                } else {
+                                    resolve(response);
+                                }
+                            });
+                        });
+                        
+                        if (response && response.pong) {
+                            console.log('✅ Found working extension ID:', extensionId);
+                            return extensionId;
+                        }
+                    } catch (error) {
+                        console.log('❌ Extension ID', extensionId, 'failed:', error.message);
+                    }
+                }
+            }
+            
+            console.log('❌ No working extension found');
+            return null;
+        }
+
+        // Проверка подключения расширения
+        async function checkExtension() {
+            const statusElement = document.getElementById('extensionStatus');
+            statusElement.textContent = 'Поиск расширения...';
+            
+            // Find working extension ID first
+            WORKING_EXTENSION_ID = await findWorkingExtensionId();
+            
+            if (WORKING_EXTENSION_ID) {
+                try {
+                    const response = await new Promise((resolve, reject) => {
+                        chrome.runtime.sendMessage(WORKING_EXTENSION_ID, { type: 'PING' }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                reject(chrome.runtime.lastError);
+                            } else {
+                                resolve(response);
+                            }
+                        });
+                    });
+                    
+                    if (response && response.pong) {
+                        statusElement.textContent = `✅ Расширение подключено (ID: ${WORKING_EXTENSION_ID.substring(0, 8)}...)`;
+                        statusElement.className = 'status-connected';
+                    } else {
+                        statusElement.textContent = '❌ Нет ответа от расширения';
+                        statusElement.className = 'status-disconnected';
+                    }
+                } catch (error) {
+                    statusElement.textContent = `❌ Ошибка подключения: ${error.message}`;
+                    statusElement.className = 'status-disconnected';
+                }
+            } else {
+                statusElement.textContent = '❌ Расширение не найдено. Убедитесь, что оно загружено в Chrome.';
+                statusElement.className = 'status-disconnected';
+            }
+        }
+
+        // Обновление статуса системы (расширение + ML стратегия)
+        async function checkSystemStatus() {
+            await checkExtension(); // Checks extension connection and finds working ID
+
+            const mlStatusElement = document.getElementById('mlStrategyStatus');
+            mlStatusElement.textContent = 'Запрос статуса ML...';
+
+            if (WORKING_EXTENSION_ID) {
+                try {
+                    const response = await new Promise((resolve, reject) => {
+                        chrome.runtime.sendMessage(WORKING_EXTENSION_ID, { type: 'GET_ML_STRATEGY_STATUS' }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                reject(chrome.runtime.lastError);
+                            } else {
+                                resolve(response);
+                            }
+                        });
+                    });
+                    
+                    if (response && response.status) {
+                        let effectiveness = response.effectiveness || 'N/A';
+                        if (response.status === 'optimal'){
+                            mlStatusElement.textContent = `✅ Оптимальная (эффективность ${effectiveness}%)`;
+                            mlStatusElement.className = 'status-optimal';
+                        } else {
+                            mlStatusElement.textContent = `⚠️ ${response.description || 'Требует корректировки'} (эффективность ${effectiveness}%)`;
+                            mlStatusElement.className = 'status-suboptimal';
+                        }
+                    } else {
+                        mlStatusElement.textContent = '❌ Нет ответа по ML статусу';
+                        mlStatusElement.className = 'status-suboptimal';
+                    }
+                } catch (error) {
+                    mlStatusElement.textContent = `❌ Ошибка запроса ML: ${error.message}`;
+                    mlStatusElement.className = 'status-suboptimal';
+                }
+            } else {
+                // Simulate ML strategy status update if extension not configured or available
+                setTimeout(() => {
+                    const isOptimal = Math.random() > 0.4; // 60% chance of being optimal
+                    if (isOptimal) {
+                        mlStatusElement.textContent = '✅ Оптимальная (симуляция, 85%)';
+                        mlStatusElement.className = 'status-optimal';
+                    } else {
+                        mlStatusElement.textContent = '⚠️ Требует корректировки (симуляция, 45%)';
+                        mlStatusElement.className = 'status-suboptimal';
+                    }
+                }, 800);
+            }
+        }
+
+        // Демонстрационные сценарии для Battle Assistant
+        const mockScenarios = [
+            {
+                playerHand: [
+                    { name: 'Kolos', stats: '8/6', clan: 'Bangers' },
+                    { name: 'Shann', stats: '6/4', clan: 'Bangers' },
+                    { name: 'Toro', stats: '5/7', clan: 'Montana' },
+                    { name: 'Grace', stats: '7/5', clan: 'Rescue' }
+                ],
+                recommendation: {
+                    card: 'Kolos',
+                    pills: 4,
+                    winChance: 82,
+                    reasoning: 'Kolos с 4 пиллсами имеет высокий шанс нанести значительный урон и обеспечить победу в раунде.',
+                    alternative: 'Grace с 3 пиллсами (вероятность 70%)'
+                }
+            },
+            {
+                playerHand: [
+                    { name: 'Vickie Cr', stats: '7/2', clan: 'Junkz' },
+                    { name: 'Striker', stats: '7/4', clan: 'All Stars' },
+                    { name: 'Dorian', stats: '6/5', clan: 'Uppers' },
+                    { name: 'Elvira', stats: '7/7', clan: 'Nightmare' }
+                ],
+                recommendation: {
+                    card: 'Elvira',
+                    pills: 5,
+                    winChance: 75,
+                    reasoning: 'Elvira с бонусом Nightmare и 5 пиллсами может переломить ход боя.',
+                    alternative: 'Striker с 2 пиллсами (вероятность 68%)'
+                }
+            },
+            {
+                playerHand: [
+                    { name: 'Tanaereva Cr', stats: '8/8', clan: 'Ulu Watu' },
+                    { name: 'Lyse Teria Cr', stats: '8/5', clan: 'Sakrohm' },
+                    { name: 'General Cr', stats: '8/4', clan: 'Sentinels' },
+                    { name: 'Caelus Cr', stats: '7/6', clan: 'La Junta' }
+                ],
+                recommendation: {
+                    card: 'Tanaereva Cr',
+                    pills: 3,
+                    winChance: 88,
+                    reasoning: 'Tanaereva Cr - одна из сильнейших карт, 3 пиллса достаточно для доминирования.',
+                    alternative: 'Lyse Teria Cr с 4 пиллсами (вероятность 72%)'
+                }
+            }
+        ];
+        let currentScenarioIndex = 0;
+
+        function displayMockCards(hand) {
+            const handContainer = document.getElementById('mockPlayerHand');
+            handContainer.innerHTML = ''; // Очистить предыдущие карты
+            hand.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'mock-card';
+                // Можно добавить класс для клана, если есть стили: cardDiv.classList.add(`clan-${card.clan.toLowerCase()}`);
+                cardDiv.innerHTML = `${card.name}<br/>${card.stats}`;
+                handContainer.appendChild(cardDiv);
+            });
+        }
+
+        function simulateBattle() {
+            currentScenarioIndex = (currentScenarioIndex + 1) % mockScenarios.length;
+            const scenario = mockScenarios[currentScenarioIndex];
+
+            displayMockCards(scenario.playerHand);
+
+            const recommendationDiv = document.getElementById('battleRecommendation');
+            recommendationDiv.innerHTML = `
+                <strong>🤖 ML Рекомендация:</strong><br/>
+                Используйте <strong>${scenario.recommendation.card}</strong> с ${scenario.recommendation.pills} пиллсами. 
+                Вероятность победы: <strong>${scenario.recommendation.winChance}%</strong><br/>
+                <em>${scenario.recommendation.reasoning}</em><br/>
+                <em>Альтернатива: ${scenario.recommendation.alternative}</em>
+            `;
+            
+            recommendationDiv.style.background = '#d1ecf1'; // Flash effect
+            setTimeout(() => {
+                recommendationDiv.style.background = '#fff9e0';
+            }, 600);
+        }
+
+        // Mock data and functions for Deck Builder
+        const mockDeckSuggestions = [
+            {
+                title: "Оптимизация 'Агрессивные Бангерс'",
+                changes: [
+                    "Заменить Beeboy на Shann (лучше статы для агрессии)",
+                    "Добавить Kolos (ключевая карта для урона)",
+                    "Убрать Willy (слишком ситуативен)"
+                ],
+                reasoning: "Эта сборка увеличит средний урон и стабильность против защитных кланов."
+            },
+            {
+                title: "Усиление 'Контроль Монтана'",
+                changes: [
+                    "Добавить Oscar (уменьшение урона противника)",
+                    "Заменить Mona на Avola (больше влияния на атаку)",
+                ],
+                reasoning: "Повышает выживаемость и контроль стола, эффективно против Ulu Watu."
+            }
+        ];
+        let currentDeckSuggestion = 0;
+        function simulateDeckOptimization() {
+            // TODO: To make this real, send a message to the extension:
+            // chrome.runtime.sendMessage(YOUR_EXTENSION_ID, { type: 'GET_DECK_OPTIMIZATION' }, (response) => {
+            //     if (response && response.suggestion) {
+            //         // Update deckSuggestion div with response.suggestion
+            //     } else {
+            //         // Handle error or no suggestion
+            //     }
+            // });
+
+            const suggestionDiv = document.getElementById('deckSuggestion');
+            currentDeckSuggestion = (currentDeckSuggestion + 1) % mockDeckSuggestions.length;
+            const suggestion = mockDeckSuggestions[currentDeckSuggestion];
+            
+            let changesHtml = '<ul>';
+            suggestion.changes.forEach(change => changesHtml += `<li>${change}</li>`);
+            changesHtml += '</ul>';
+
+            suggestionDiv.innerHTML = `
+                <h5>${suggestion.title}</h5>
+                ${changesHtml}
+                <span class="reasoning">${suggestion.reasoning}</span>
+            `;
+            suggestionDiv.style.display = 'block';
+        }
+
+        // Mock data and functions for Market Analyzer
+        const mockMarketAnalyses = [
+            {
+                title: "Тренды рынка (Клинц)",
+                hotDeals: [
+                    { card: "Lyse Teria Cr", trend: "+15% за неделю", tip: "Купить сейчас!"},
+                    { card: "Guru Cr", trend: "+10% за неделю", tip: "Перспективная инвестиция."}
+                ],
+                overpriced: [
+                    { card: "General Cr", trend: "-5% за неделю", tip: "Цена завышена, возможно падение."}
+                ],
+                reasoning: "Рынок активен, коллекционные карты Ulu Watu и Nightmare в цене."
+            },
+            {
+                title: "Тренды рынка (Редкие карты)",
+                hotDeals: [
+                    { card: "Dj Korr Cr", trend: "+20% за месяц", tip: "Высокий спрос."},
+                ],
+                overpriced: [
+                    { card: "Kiki Cr", trend: "-8% за месяц", tip: "Предложение превышает спрос."}
+                ],
+                reasoning: "Легендарные карты стабильно растут, некоторые старые редкие карты теряют актуальность."
+            }
+        ];
+        let currentMarketAnalysis = 0;
+        function simulateMarketAnalysis() {
+            // TODO: To make this real, send a message to the extension:
+            // chrome.runtime.sendMessage(YOUR_EXTENSION_ID, { type: 'GET_MARKET_ANALYSIS' }, (response) => {
+            //     if (response && response.analysis) {
+            //         // Update marketAnalysis div with response.analysis
+            //     } else {
+            //         // Handle error or no analysis
+            //     }
+            // });
+
+            const analysisDiv = document.getElementById('marketAnalysis');
+            currentMarketAnalysis = (currentMarketAnalysis + 1) % mockMarketAnalyses.length;
+            const analysis = mockMarketAnalyses[currentMarketAnalysis];
+
+            let hotDealsHtml = '<h5>🔥 Горячие предложения:</h5><ul>';
+            analysis.hotDeals.forEach(deal => hotDealsHtml += `<li>${deal.card} (<strong>${deal.trend}</strong>) - <em>${deal.tip}</em></li>`);
+            hotDealsHtml += '</ul>';
+            
+            let overpricedHtml = '<h5>⚠️ Переоцененные карты:</h5><ul>';
+            analysis.overpriced.forEach(item => overpricedHtml += `<li>${item.card} (${item.trend}) - <em>${item.tip}</em></li>`);
+            overpricedHtml += '</ul>';
+
+            analysisDiv.innerHTML = `
+                <h4>${analysis.title}</h4>
+                ${hotDealsHtml}
+                ${overpricedHtml}
+                <span class="reasoning">${analysis.reasoning}</span>
+            `;
+            analysisDiv.style.display = 'block';
+        }
+
+        // Mock data and functions for Analytics Dashboard
+        const mockPlayerStatsData = [
+            {
+                title: "Статистика за неделю",
+                stats: [
+                    { label: "Процент побед", value: "68%", trend: "📈 +3%" },
+                    { label: "Любимый клан", value: "Rescue", trend: "" },
+                    { label: "Заработано Clintz", value: "+7,500", trend: "💰" },
+                    { label: "Сыграно боев", value: "52", trend: "" }
+                ],
+                recommendation: "Отличная неделя! Продолжайте использовать Rescue, они показывают высокую эффективность. Попробуйте добавить карту Kerry для улучшения защиты."
+            },
+            {
+                title: "Статистика за месяц",
+                stats: [
+                    { label: "Процент побед", value: "62%", trend: "📉 -2%" },
+                    { label: "Любимый клан", value: "Bangers", trend: "" },
+                    { label: "Заработано Clintz", value: "+25,000", trend: "💰" },
+                    { label: "Самая успешная карта", value: "Kolos (75% побед)", trend: "" }
+                ],
+                recommendation: "Небольшое снижение процента побед. Возможно, стоит пересмотреть стратегию против кланов Nightmare. Kolos все еще очень силен."
+            }
+        ];
+        let currentPlayerStats = 0;
+        function simulatePlayerStats() {
+            // TODO: To make this real, send a message to the extension:
+            // chrome.runtime.sendMessage(YOUR_EXTENSION_ID, { type: 'GET_PLAYER_STATS' }, (response) => {
+            //     if (response && response.stats) {
+            //         // Update playerStats div with response.stats
+            //     } else {
+            //         // Handle error or no stats
+            //     }
+            // });
+
+            const statsDiv = document.getElementById('playerStats');
+            currentPlayerStats = (currentPlayerStats + 1) % mockPlayerStatsData.length;
+            const data = mockPlayerStatsData[currentPlayerStats];
+
+            let statsHtml = '<ul>';
+            data.stats.forEach(stat => statsHtml += `<li>${stat.label}: <strong>${stat.value}</strong> <em>${stat.trend}</em></li>`);
+            statsHtml += '</ul>';
+
+            statsDiv.innerHTML = `
+                <h5>${data.title}</h5>
+                ${statsHtml}
+                <span class="reasoning"><strong>Совет:</strong> ${data.recommendation}</span>
+            `;
+            statsDiv.style.display = 'block';
+        }
+
+        // Проверка статуса при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkSystemStatus, 1000); // Changed to checkSystemStatus
+        });
+
+        // Симуляция получения данных от расширения
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'EXTENSION_STATUS') {
+                const statusElement = document.getElementById('extensionStatus');
+                if (event.data.connected) {
+                    statusElement.textContent = '✅ Расширение активно';
+                    statusElement.className = 'status-connected';
+                } else {
+                    statusElement.textContent = '❌ Расширение недоступно';
+                    statusElement.className = 'status-disconnected';
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

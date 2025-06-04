@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Testing Strategy & Guidelines
+
+## Core Testing Workflow
+
+1. **Write module code**
+2. **Write unit tests** using mocks for external dependencies
+3. **Run tests** with race detection (`go test -race ./...`)
+4. **Debug until passing**
+5. **Write integration tests** if applicable (tagged `//go:build integration`)
+6. **Proceed only after stable**
+
+## Testing Standards
+
+- **Use testify/assert or testify/require** for assertions
+- **Generate mocks** for `pkg/interfaces` using `mockery`
+- **Structure tests** using Arrange-Act-Assert (AAA) pattern
+- **Always run with `-race` flag** to detect race conditions
+- **Place `_test.go` files** alongside the code they test
+
+## Test Organization
+
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Tag with `//go:build integration`
+- **Mock Generation**: Use `mockery` for interface mocks
+- **Test Utilities**: Leverage shared `pkg/testutil` package
+
+<example>
+// Good: Proper test structure with AAA pattern
+func TestExchangeAdapter_GetBalance(t *testing.T) {
+    // Arrange
+    mockExchange := mocks.NewIExchange(t)
+    adapter := NewExchangeAdapter(mockExchange, logger)
+    
+    // Act
+    balance, err := adapter.GetBalance(ctx)
+    
+    // Assert
+    require.NoError(t, err)
+    assert.Equal(t, expectedBalance, balance)
+}
+</example>
+
+<example type="invalid">
+// Bad: No clear structure, missing assertions
+func TestSomething(t *testing.T) {
+    adapter := NewAdapter()
+    adapter.DoSomething()
+    // Missing assertions and error handling
+}
+</example>

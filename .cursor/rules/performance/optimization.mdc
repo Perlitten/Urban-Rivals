@@ -1,0 +1,96 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Performance Optimization Guidelines
+
+## Memory Management
+
+- **Minimize allocations**: Avoid unnecessary object creation in hot paths
+- **Reuse objects**: Pool frequently used objects when appropriate
+- **Efficient data structures**: Choose appropriate data structures for use case
+- **Garbage collection**: Be mindful of GC pressure in high-frequency code
+
+## Concurrency & Parallelism
+
+- **Goroutines**: Use for I/O-bound operations, avoid for CPU-bound tasks
+- **Channel buffering**: Buffer channels appropriately to prevent blocking
+- **Mutex granularity**: Use fine-grained locking to reduce contention
+- **Worker pools**: Implement worker pools for bounded concurrency
+
+## Caching Strategies
+
+- **In-memory caching**: Cache frequently accessed, slowly changing data
+- **TTL policies**: Implement appropriate time-to-live for cached data
+- **Cache invalidation**: Ensure cache consistency with data updates
+- **Memory limits**: Set bounds on cache size to prevent memory leaks
+
+## I/O Optimization
+
+- **Batch operations**: Group multiple operations when possible
+- **Connection pooling**: Reuse database and HTTP connections
+- **Async operations**: Use non-blocking I/O for better throughput
+- **Rate limiting**: Implement backoff strategies for external APIs
+
+<example>
+// Good: Efficient caching with proper lifecycle management
+type Cache struct {
+    mu    sync.RWMutex
+    items map[string]CacheItem
+    ttl   time.Duration
+}
+
+type CacheItem struct {
+    value     interface{}
+    expiresAt time.Time
+}
+
+func (c *Cache) Get(key string) (interface{}, bool) {
+    c.mu.RLock()
+    defer c.mu.RUnlock()
+    
+    item, exists := c.items[key]
+    if !exists || time.Now().After(item.expiresAt) {
+        return nil, false
+    }
+    return item.value, true
+}
+
+// Worker pool for bounded concurrency
+func processWithWorkerPool(jobs <-chan Job, workers int) {
+    var wg sync.WaitGroup
+    for i := 0; i < workers; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for job := range jobs {
+                job.Process()
+            }
+        }()
+    }
+    wg.Wait()
+}
+</example>
+
+<example type="invalid">
+// Bad: Inefficient patterns
+func inefficientProcessing() {
+    // Creating new objects in loop
+    for i := 0; i < 1000000; i++ {
+        data := make([]byte, 1024) // Allocates every iteration
+        processData(data)
+    }
+    
+    // Unbounded goroutines
+    for _, item := range items {
+        go processItem(item) // Can create millions of goroutines
+    }
+    
+    // No caching for expensive operations
+    for _, user := range users {
+        profile := fetchUserProfile(user.ID) // Network call every time
+        processProfile(profile)
+    }
+}
+</example>

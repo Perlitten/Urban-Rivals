@@ -1,0 +1,68 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# API Key & Secret Management
+
+## Security Principles
+
+- **Never hardcode**: No API keys, passwords, or secrets in source code
+- **Environment variables**: Use `.env` files for local development
+- **Git exclusion**: Always add `.env*` to `.gitignore`
+- **Minimal exposure**: Only load secrets where needed
+
+## Configuration Management
+
+- **Separate configs**: Use different configs for dev/staging/production
+- **Validation**: Validate required environment variables at startup
+- **Default values**: Provide safe defaults for non-sensitive settings
+- **Documentation**: Document required environment variables
+
+## Best Practices
+
+- **Rotation**: Regularly rotate API keys and secrets
+- **Least privilege**: Use API keys with minimal required permissions
+- **Monitoring**: Log API key usage (but never the keys themselves)
+- **Backup**: Securely store backup credentials
+
+## Error Handling
+
+- **Graceful degradation**: Handle missing credentials gracefully
+- **Clear errors**: Provide helpful error messages for missing config
+- **No leakage**: Never log or expose actual secret values
+
+<example>
+// Good: Secure configuration management
+const config = {
+  exchange: {
+    apiKey: process.env.BYBIT_API_KEY || '',
+    apiSecret: process.env.BYBIT_API_SECRET || '',
+    testnet: process.env.NODE_ENV !== 'production'
+  }
+};
+
+// Validate required secrets
+if (!config.exchange.apiKey) {
+  throw new Error('BYBIT_API_KEY environment variable is required');
+}
+
+// Safe logging (no secrets)
+logger.info('Exchange configured', { 
+  testnet: config.exchange.testnet,
+  hasApiKey: !!config.exchange.apiKey 
+});
+</example>
+
+<example type="invalid">
+// Bad: Hardcoded secrets and unsafe practices
+const config = {
+  apiKey: 'sk-proj-abc123...', // NEVER hardcode secrets
+  apiSecret: 'secret123'       // NEVER in source code
+};
+
+// Bad: Logging secrets
+console.log('API Key:', config.apiKey); // NEVER log secrets
+logger.error('Auth failed with key:', apiKey); // NEVER expose in logs
+</example>
+

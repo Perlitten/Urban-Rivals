@@ -1,0 +1,62 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Incremental Development Principles
+
+## Core Approach
+
+- **One module at a time**: Focus on fixing/updating one specific package before moving to others
+- **Core structures first**: Start with base interfaces and data models before implementations
+- **Immediate testing**: Verify compilation in isolation before integrating with rest of system
+- **Compatibility adapters**: Create adapters for gradual migration between interface versions
+
+## Change Management
+
+- **Change documentation**: Document all interface changes and their impact on dependent components
+- **Breaking cyclic dependencies**: Use stubs or temporary implementations to break cycles
+- **Predictable updates**: Follow established patterns to prevent cascading compilation errors
+
+## Example Update Process
+
+1. Update base interface (e.g., `interfaces.IPosition`) and data models
+2. Create compatibility adapter for existing implementations
+3. Update one specific interface implementation
+4. Test compilation and logic of updated module
+5. Update interconnected components affected by changes
+6. Repeat for other modules
+
+## Platon GO Specific Guidelines
+
+- **LLM interfaces**: Update consistently, considering interdependencies
+- **Trading strategies**: Maintain backward compatibility with existing strategies
+- **Exchange module**: Always test with paper trading mode first
+- **Incremental approach**: Prevents cascading errors and ensures manageable updates
+
+<example>
+// Good: Incremental interface update with adapter
+type IPositionV2 interface {
+    GetBalance() decimal.Decimal
+    GetSize() decimal.Decimal
+    GetPnL() decimal.Decimal // New method
+}
+
+type PositionAdapter struct {
+    legacy IPosition
+}
+
+func (a *PositionAdapter) GetPnL() decimal.Decimal {
+    // Adapter implementation for legacy compatibility
+    return a.legacy.GetBalance().Sub(a.legacy.GetSize())
+}
+</example>
+
+<example type="invalid">
+// Bad: Breaking change without compatibility
+type IPosition interface {
+    GetBalance() decimal.Decimal
+    GetPnL() decimal.Decimal // Added without adapter - breaks existing code
+}
+</example>
+

@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# YOLO Mode Configuration
+
+## Recommended Settings
+
+Enable YOLO mode in Cursor settings with these safe automation rules:
+
+```
+any kind of tests are always allowed like vitest, npm test, nr test, etc. 
+also basic build commands like build, tsc, etc. 
+creating files and making directories (like touch, mkdir, etc) is always ok too
+```
+
+## Safe Commands for Automation
+
+- **Testing**: `npm test`, `go test`, `vitest`, `jest`
+- **Building**: `tsc`, `go build`, `npm run build`
+- **File Operations**: `mkdir`, `touch`, file creation/modification
+- **Linting**: `golangci-lint run`, `eslint`, `prettier`
+
+## Security Boundaries
+
+- **Never automate**: `rm`, `git push`, `docker run`, network operations
+- **Always require confirmation**: Destructive operations, external API calls
+- **Safe automation**: Read-only operations, local builds, tests
+
+<example>
+// Good: Safe YOLO automation
+- Run `tsc` to check TypeScript compilation
+- Execute `go test -race ./...` for testing
+- Create directories with `mkdir -p`
+- Format code with `gofmt -w .`
+</example>
+
+<example type="invalid">
+// Bad: Dangerous automation
+- Automatically run `rm -rf` commands
+- Push to git without confirmation
+- Execute network requests without approval
+- Run Docker containers automatically
+</example>

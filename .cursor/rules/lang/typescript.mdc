@@ -1,0 +1,67 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TypeScript Development Standards
+
+## Type Safety
+
+- **Strict Mode**: Enable all strict TypeScript compiler options
+- **No Any**: Avoid `any` type, use specific types or `unknown`
+- **Explicit Returns**: Always specify function return types
+- **Interface over Type**: Prefer interfaces for object shapes
+
+## Naming Conventions
+
+- **Interfaces**: PascalCase, descriptive names (e.g., `UserProfile`, `ApiResponse`)
+- **Types**: PascalCase for type aliases (e.g., `StatusType`, `ConfigOptions`)
+- **Enums**: PascalCase with descriptive values
+- **Generics**: Single uppercase letters (T, K, V) or descriptive names
+
+## Modern TypeScript Features
+
+- **Discriminated Unions**: Use for complex type scenarios
+- **Template Literal Types**: For string manipulation types
+- **Utility Types**: Leverage built-in utilities (Pick, Omit, Partial)
+- **Const Assertions**: Use `as const` for immutable data
+
+## Error Handling
+
+- **Result Types**: Consider Result<T, E> pattern for error handling
+- **Error Objects**: Use Error instances with descriptive messages
+- **Type Guards**: Implement proper type narrowing
+
+<example>
+// Good: Modern TypeScript with proper types
+interface UserProfile {
+  readonly id: string;
+  name: string;
+  email: string;
+  status: 'active' | 'inactive' | 'pending';
+}
+
+function updateUser(id: string, updates: Partial<UserProfile>): Result<UserProfile, Error> {
+  // Implementation with proper error handling
+}
+
+type ApiResponse<T> = {
+  data: T;
+  status: 'success' | 'error';
+  message?: string;
+};
+</example>
+
+<example type="invalid">
+// Bad: Poor TypeScript practices
+interface user {  // Should be PascalCase
+  id: any;       // Avoid any
+  name;          // Missing type annotation
+  status: string; // Should use union types
+}
+
+function updateUser(id, updates) {  // Missing types
+  // No return type specified
+}
+</example>
+

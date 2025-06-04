@@ -1,0 +1,78 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Apply when working with notification systems, templates, or message formatting. Ensures clean, readable notifications without technical debt.
+globs: pkg/notify/**, internal/adapters/notification/**, **/templates/**
+alwaysApply: false
+---
+
+# Notification & Template Quality Standards
+
+## Template Requirements
+
+- **No MarkdownV2 escaping** unless explicitly using Markdown parsing
+- **Simple, readable format** with emojis and plain text
+- **Consistent field naming** - verify struct fields match template variables
+- **No broken markup** - test templates with real data
+
+## Code Cleanup Rules
+
+- **Remove escape functions** when not using Markdown parsing
+- **Delete unused formatters** like `escapeMarkdownV2`, `formatOldStyle`
+- **Clean up template functions** - remove unused `escape` from FuncMap
+- **Remove commented parse_mode** lines completely
+
+## Message Format Standards
+
+- **Clean structure**: Header, content, footer with clear separators
+- **Consistent emojis**: Use standardized emoji patterns across templates
+- **No double timestamps**: Single timestamp per message
+- **Readable spacing**: Use line breaks and separators appropriately
+
+## Template Testing Requirements
+
+After template changes:
+1. **Test with real data** - run notification tests
+2. **Verify all event types** - signal, order, trade, error notifications  
+3. **Check field mapping** - ensure template variables match data structures
+4. **Validate formatting** - no broken characters or markup
+
+## Telegram Adapter Standards
+
+- **Remove parse_mode** when not using Markdown
+- **Clean formatMessage logic** - single responsibility formatting
+- **Remove legacy functions** - delete old Markdown-specific code
+- **Update tests** - reflect actual output format, not old Markdown expectations
+
+<example>
+// Good: Clean template without escaping
+✅ ORDER PLACED - {{.Symbol}}
+
+📊 Type: {{upper .Type}}
+💰 Price: {{formatDecimal .Price}} USDT
+🕒 {{formatTime .Timestamp}}
+</example>
+
+<example type="invalid">
+// Bad: Broken Markdown with escaping
+🎯 *ORDER PLACED* \- {{escape .Symbol}}
+
+📋 *Type:* {{upper .OrderType | escape}}  // Wrong field name
+💰 *Price:* `{{escape (formatDecimal .Price)}}` USDT
+🕒 `{{formatTime .Timestamp}}` 
+</example>
+
+## Quality Verification Checklist
+
+Before completing notification work:
+- ✅ All templates render correctly with test data
+- ✅ No unused escape/formatting functions remain  
+- ✅ Telegram adapter sends clean messages
+- ✅ Tests pass and reflect actual output format
+- ✅ No commented code or temporary fixes left behind
+
+
+

@@ -1,0 +1,49 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# File Management & Project Organization
+
+## File Creation Rules
+
+- **Ask Permission First**: Always confirm before creating new files
+- **Check Existing**: Search for similar files before creating new ones
+- **No Duplication**: Extend existing files instead of creating variants
+- **Proper Location**: Use existing project structure (cmd/, internal/, pkg/, docs/)
+
+## Language Standards
+
+- **English Only**: All code, comments, variables, functions - NO Russian/Cyrillic
+- **Documentation**: Auto-update docs when modifying code
+- **Consistency**: Follow existing naming conventions and patterns
+
+## Change Management
+
+- **Plan Changes**: Show what will be created/modified/deleted
+- **One Task One Output**: Complete one change before starting another
+- **Clean Up**: Remove obsolete files when replacing functionality
+
+<example>
+// Good: Ask permission and explain reasoning
+"Should I create new file `internal/adapters/exchange/enhanced.go` or extend existing `internal/adapters/exchange/adapter.go`? The new functionality fits well with existing adapter pattern."
+</example>
+
+<example type="invalid">
+// Bad: Create files without permission
+func CreateNewFileWithoutAsking() {
+    // Creates duplicate functionality
+    // Uses Russian variable names
+    переменная := "значение" // NEVER DO THIS
+}
+</example>
+
+
+
+
+
+
+
+
+
+

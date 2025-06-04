@@ -1,0 +1,91 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Enforce rigorous code quality standards and prohibit leaving technical debt or incomplete work
+globs: 
+alwaysApply: true
+---
+
+# Code Quality & Completion Standards
+
+## Absolute Requirements
+
+- **ZERO tolerance for commented-out code**: Remove all `//`, `/* */`, `# ` disabled code
+- **ZERO tolerance for TODO related to current task**: Complete work fully, don't defer
+- **ZERO tolerance for unused functions**: Delete functions that are no longer needed
+- **ZERO tolerance for half-fixes**: If you touch a system, fix it completely
+
+## Mandatory Completion Checklist
+
+Before finishing ANY task, MUST verify:
+
+1. **Code Cleanup**: No commented code, no unused imports, no dead functions
+2. **Test Verification**: Run relevant tests and ensure they pass
+3. **Build Verification**: Ensure project compiles without warnings
+4. **Functionality Check**: Test the actual feature works as intended
+
+## Code Removal Rules
+
+- **Commented Code**: Delete immediately, don't leave "temporarily disabled"
+- **Unused Functions**: Remove completely, especially with names like `escapeMarkdownV2`, `formatOldWay`
+- **Dead Dependencies**: Remove unused imports and packages
+- **Obsolete Files**: Delete files that are no longer needed
+
+## Work Standards
+
+- **Complete Tasks**: Don't stop at 50% or 80% - finish to 100%
+- **Clean Implementation**: Simple, readable, maintainable code
+- **No Quick Hacks**: Do it right the first time
+- **Verify Results**: Always test what you build
+
+## Communication Requirements
+
+- **Show Progress**: Demonstrate before/after for major changes
+- **Explain Decisions**: Why this approach over alternatives
+- **Acknowledge Issues**: Don't ignore or skip known problems
+
+<example>
+// Good: Clean, complete implementation
+func SendNotification(msg string) error {
+    return telegram.Send(msg)
+}
+
+func TestSendNotification(t *testing.T) {
+    err := SendNotification("test")
+    assert.NoError(t, err)
+}
+</example>
+
+<example type="invalid">
+// Bad: Leaving commented code and half-implementation
+func SendNotification(msg string) error {
+    // oldMethod(msg) // TODO: remove this
+    // return legacyTelegram.Send(escapeMarkdownV2(msg)) // temporarily disabled
+    return telegram.Send(msg) // FIXME: test this
+}
+
+// func oldMethod(msg string) {} // unused function left behind
+</example>
+
+## Error Response Protocol
+
+If code quality issues are identified:
+1. **Immediately stop** current approach
+2. **Clean up all** introduced issues
+3. **Verify cleanup** with tests and builds
+4. **Resume** with proper implementation
+
+## Success Criteria
+
+Task is complete ONLY when:
+- ✅ All new code follows standards
+- ✅ All old/dead code removed
+- ✅ Tests pass
+- ✅ Build succeeds
+- ✅ Feature works correctly
+- ✅ No debugging artifacts left behind
+
+

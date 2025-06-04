@@ -1,0 +1,63 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Documentation Management
+
+## Diátaxis Framework Structure
+
+- **tutorials/**: Learning-oriented step-by-step guides
+- **how-to-guides/**: Problem-solving task-oriented instructions  
+- **reference/**: Information-oriented technical specifications
+- **explanation/**: Understanding-oriented conceptual discussions
+
+## Documentation Standards
+
+- **English Only**: All documentation must be in English
+- **Auto-Update**: Update docs when modifying related code
+- **Proactive Maintenance**: Check and update docs during code reviews
+- **Clear Navigation**: Maintain README.md indexes in each directory
+
+## Content Guidelines
+
+- **Kebab-case naming**: Use `file-name.md` format
+- **Professional formatting**: Use badges, clear headings, code examples
+- **Comprehensive coverage**: Include setup, usage, troubleshooting
+- **Version control**: Track documentation changes with code changes
+
+## Maintenance Process
+
+1. **Check existing docs** before creating new content
+2. **Update related docs** when modifying code
+3. **Verify examples** still work after code changes
+4. **Maintain navigation** structure and cross-references
+
+<example>
+// Good: Proper documentation structure
+docs/
+├── README.md (main navigation)
+├── tutorials/
+│   ├── README.md
+│   └── getting-started.md
+├── how-to-guides/
+│   ├── README.md
+│   └── configure-trading.md
+├── reference/
+│   ├── README.md
+│   └── api-reference.md
+└── explanation/
+    ├── README.md
+    └── architecture-overview.md
+</example>
+
+<example type="invalid">
+// Bad: Poor documentation organization
+docs/
+├── random-file.txt
+├── старый-файл.md (Russian filename)
+├── SETUP.MD (wrong case)
+└── mixed_naming_styles.md
+</example>
+
+
