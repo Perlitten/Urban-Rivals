@@ -3,6 +3,7 @@
  * Модульная версия content script с улучшенной архитектурой
  */
 
+import { logger, createContentLogger } from '../common/logger';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '../ui/App';
@@ -14,6 +15,9 @@ import type {
   IUserPreferences,
   GamePage
 } from '../common/types';
+
+// Initialize content logger
+const contentLogger = createContentLogger('MAIN');
 
 // Optimized content script state
 interface ContentScriptState {
@@ -51,30 +55,80 @@ const PAGE_PATTERNS = {
  * Initialize optimized content script
  */
 async function initialize() {
+  const initTimer = logger.startTimer(contentLogger, 'Content Script Initialization');
+  
+  logger.info(contentLogger, 'Starting Urban Rivals ML Consultant initialization', {
+    url: window.location.href,
+    hostname: window.location.hostname,
+    pathname: window.location.pathname,
+    userAgent: navigator.userAgent,
+    timestamp: Date.now()
+  });
+  
   try {
-    console.log('🚀 Urban Rivals ML Consultant: Initializing optimized content script');
-    
     if (!isUrbanRivalsPage()) {
-      console.log('Not on Urban Rivals page, skipping initialization');
+      logger.info(contentLogger, 'Not on Urban Rivals page, skipping initialization', {
+        currentHostname: window.location.hostname,
+        expectedHostname: 'urban-rivals.com'
+      });
+      initTimer();
       return;
     }
     
+    logger.debug(contentLogger, 'Waiting for page to load completely');
     await waitForPageLoad();
+    logger.debug(contentLogger, 'Page load completed');
     
+    logger.debug(contentLogger, 'Loading user preferences');
     state.preferences = await getPreferences();
+         logger.info(contentLogger, 'User preferences loaded', {
+       battleAssistant: state.preferences?.features.battleAssistant,
+       deckBuilder: state.preferences?.features.deckBuilder,
+       marketAnalyzer: state.preferences?.features.marketAnalyzer,
+       theme: state.preferences?.ui.theme
+     });
+    
+    logger.debug(contentLogger, 'Detecting current page type');
     state.currentPage = detectCurrentPage();
+    logger.info(contentLogger, 'Page type detected', {
+      pageType: state.currentPage,
+      pathname: window.location.pathname
+    });
     
-    console.log('📍 Detected page:', state.currentPage);
-    
+    logger.debug(contentLogger, 'Setting up DOM observer');
     setupDOMObserver();
+    logger.debug(contentLogger, 'DOM observer configured');
+    
+    logger.debug(contentLogger, 'Injecting UI components');
     await injectUI();
+    logger.debug(contentLogger, 'UI injection completed');
+    
+    logger.debug(contentLogger, 'Setting up message listeners');
     setupMessageListeners();
+    logger.debug(contentLogger, 'Message listeners configured');
+    
+    logger.debug(contentLogger, 'Starting periodic data extraction');
     startPeriodicDataExtraction();
+    logger.debug(contentLogger, 'Periodic data extraction started');
     
     state.isInitialized = true;
-    console.log('✅ Optimized content script initialized successfully');
+    initTimer();
+    logger.info(contentLogger, '✅ Content script initialization completed successfully', {
+      pageType: state.currentPage,
+      componentsActive: {
+        uiContainer: !!state.uiContainer,
+        reactRoot: !!state.reactRoot,
+        observer: !!state.observer,
+        battleParser: !!state.battleParser
+      }
+    });
   } catch (error) {
-    console.error('❌ Failed to initialize content script:', error);
+    initTimer();
+    logger.error(contentLogger, 'Content script initialization failed', error as Error, {
+      url: window.location.href,
+      pageType: state.currentPage,
+      initializationStep: 'unknown'
+    });
   }
 }
 

@@ -1,9 +1,16 @@
 // === COMPREHENSIVE MV3 SERVICE WORKER WITH ML INTEGRATION ===
 // Following https://developer.chrome.com/docs/extensions/mv3/service_workers/
-console.log('[BG_COMPREHENSIVE] Service Worker evaluating at:', Date.now());
-
+import { logger, createBackgroundLogger } from '../common/logger';
 import { IChromeMessage, IUserPreferences, IBattleState, IDeck, IMarketData } from '../common/types';
 import { ChromeStorageManager } from '../common/storage';
+
+// Initialize background logger
+const bgLogger = createBackgroundLogger('INIT');
+logger.info(bgLogger, 'Service Worker script starting evaluation', { 
+  timestamp: Date.now(),
+  userAgent: navigator.userAgent,
+  extensionVersion: chrome.runtime.getManifest().version
+});
 
 // Service Worker state management
 let isInitialized = false;
@@ -23,37 +30,75 @@ const mlWorkers: MLWorkerManager = {
 
 // ML Workers initialization
 async function initializeMLWorkers(): Promise<void> {
-  console.log('[BG_COMPREHENSIVE] Initializing ML Workers...');
+  const mlLogger = createBackgroundLogger('ML_WORKERS');
+  const timer = logger.startTimer(mlLogger, 'ML Workers Initialization');
+  
+  logger.info(mlLogger, 'Starting ML Workers initialization process', {
+    workersToLoad: ['battle', 'deck', 'market'],
+    timestamp: Date.now()
+  });
   
   try {
     // Initialize Battle Worker
+    logger.debug(mlLogger, 'Creating Battle Worker instance');
     mlWorkers.battleWorker = new Worker('/ml-worker-battle.js');
     mlWorkers.battleWorker.onmessage = (event) => handleWorkerMessage('battle', event);
-    mlWorkers.battleWorker.onerror = (error) => console.error('[BG_COMPREHENSIVE] Battle Worker error:', error);
+    mlWorkers.battleWorker.onerror = (errorEvent) => {
+      const error = new Error(`Battle Worker error: ${errorEvent.message}`);
+      logger.error(createBackgroundLogger('BATTLE_WORKER'), 'Battle Worker runtime error', error);
+    };
+    logger.info(mlLogger, 'Battle Worker created and configured');
     
     // Initialize Deck Worker  
+    logger.debug(mlLogger, 'Creating Deck Worker instance');
     mlWorkers.deckWorker = new Worker('/ml-worker-deck.js');
     mlWorkers.deckWorker.onmessage = (event) => handleWorkerMessage('deck', event);
-    mlWorkers.deckWorker.onerror = (error) => console.error('[BG_COMPREHENSIVE] Deck Worker error:', error);
+    mlWorkers.deckWorker.onerror = (errorEvent) => {
+      const error = new Error(`Deck Worker error: ${errorEvent.message}`);
+      logger.error(createBackgroundLogger('DECK_WORKER'), 'Deck Worker runtime error', error);
+    };
+    logger.info(mlLogger, 'Deck Worker created and configured');
     
     // Initialize Market Worker
+    logger.debug(mlLogger, 'Creating Market Worker instance');
     mlWorkers.marketWorker = new Worker('/ml-worker-market.js');
     mlWorkers.marketWorker.onmessage = (event) => handleWorkerMessage('market', event);
-    mlWorkers.marketWorker.onerror = (error) => console.error('[BG_COMPREHENSIVE] Market Worker error:', error);
+    mlWorkers.marketWorker.onerror = (errorEvent) => {
+      const error = new Error(`Market Worker error: ${errorEvent.message}`);
+      logger.error(createBackgroundLogger('MARKET_WORKER'), 'Market Worker runtime error', error);
+    };
+    logger.info(mlLogger, 'Market Worker created and configured');
     
-    // Load models in all workers
-    await Promise.all([
+    // Load models in all workers with detailed tracking
+    logger.info(mlLogger, 'Loading ML models in all workers');
+    const modelLoadPromises = [
       sendWorkerMessage(mlWorkers.battleWorker, { type: 'LOAD_MODEL' }),
       sendWorkerMessage(mlWorkers.deckWorker, { type: 'LOAD_MODEL' }),
       sendWorkerMessage(mlWorkers.marketWorker, { type: 'LOAD_MODEL' })
-    ]);
+    ];
+    
+    const modelLoadResults = await Promise.all(modelLoadPromises);
+    logger.info(mlLogger, 'All ML models loaded successfully', {
+      battleModelStatus: modelLoadResults[0],
+      deckModelStatus: modelLoadResults[1],
+      marketModelStatus: modelLoadResults[2]
+    });
     
     mlWorkers.isLoaded = true;
-    console.log('[BG_COMPREHENSIVE] All ML Workers initialized successfully');
+    timer();
+    logger.info(mlLogger, '✅ All ML Workers initialized and models loaded successfully');
     
   } catch (error) {
-    console.error('[BG_COMPREHENSIVE] ML Workers initialization failed:', error);
+    timer();
+    logger.error(mlLogger, 'ML Workers initialization failed', error as Error, {
+      workersStatus: {
+        battle: !!mlWorkers.battleWorker,
+        deck: !!mlWorkers.deckWorker,
+        market: !!mlWorkers.marketWorker
+      }
+    });
     mlWorkers.isLoaded = false;
+    throw error;
   }
 }
 

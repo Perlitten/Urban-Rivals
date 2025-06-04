@@ -1,9 +1,13 @@
 // Advanced Battle Analysis ML Worker
+import { logger, createMLLogger } from '../../common/logger';
 import type { 
   IBattleState, 
   IBattleRecommendation, 
   ICard 
 } from '../../common/types';
+
+// Initialize worker logger
+const workerLogger = createMLLogger('BATTLE_WORKER');
 
 interface WorkerMessage {
   type: string;
@@ -43,44 +47,136 @@ class BattleAnalyzer {
   };
 
   async loadModel(): Promise<void> {
-    // Simulate advanced model loading with card synergies database
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    this.isLoaded = true;
+    const timer = logger.startTimer(workerLogger, 'Battle Model Loading');
+    logger.info(workerLogger, 'Starting battle analysis model loading', {
+      clanBonusesCount: Object.keys(this.clanBonuses).length
+    });
+    
+    try {
+      // Simulate advanced model loading with card synergies database
+      logger.debug(workerLogger, 'Loading card synergies database');
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      logger.debug(workerLogger, 'Loading clan bonus calculations');
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      logger.debug(workerLogger, 'Loading battle context analyzers');
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      this.isLoaded = true;
+      timer();
+      logger.info(workerLogger, '✅ Battle analysis model loaded successfully');
+    } catch (error) {
+      timer();
+      logger.error(workerLogger, 'Failed to load battle model', error as Error);
+      throw error;
+    }
   }
 
   analyzeMatchup(battleState: IBattleState): IBattleRecommendation {
+    const timer = logger.startTimer(workerLogger, 'Battle Matchup Analysis');
+    logger.info(workerLogger, 'Starting battle matchup analysis', {
+      playerCards: battleState.playerCards.length,
+      opponentCards: battleState.opponentCards.length,
+      playerLife: battleState.playerLife,
+      opponentLife: battleState.opponentLife,
+      playerPills: battleState.playerPills,
+      opponentPills: battleState.opponentPills,
+      historyLength: battleState.history.length
+    });
+    
     if (!this.isLoaded) {
+      logger.error(workerLogger, 'Battle analysis attempted with unloaded model');
       throw new Error('Battle analysis model not loaded');
     }
 
-    const context = this.analyzeBattleContext(battleState);
-    const cardAnalysis = this.analyzeAvailableCards(battleState.playerCards, context);
-    const opponentThreat = this.analyzeOpponentThreat(battleState.opponentCards, battleState);
-    
-    // Advanced card selection algorithm
-    const recommendedCard = this.selectOptimalCard(cardAnalysis, opponentThreat, context);
-    const recommendedPills = this.calculateOptimalPills(recommendedCard, opponentThreat, battleState, context);
-    
-    // Monte Carlo simulation for win probability
-    const winProbability = this.calculateWinProbability(recommendedCard, recommendedPills, battleState, context);
-    
-    // Generate strategic reasoning
-    const reasoning = this.generateStrategicReasoning(recommendedCard, recommendedPills, context, opponentThreat);
-    
-    // Alternative strategies
-    const alternatives = this.generateAlternatives(cardAnalysis, opponentThreat, context, battleState, recommendedCard);
-    
-    // Confidence based on multiple factors
-    const confidence = this.calculateConfidence(context, cardAnalysis, opponentThreat);
+    try {
+      logger.debug(workerLogger, 'Analyzing battle context');
+      const context = this.analyzeBattleContext(battleState);
+      logger.debug(workerLogger, 'Battle context analyzed', {
+        gamePhase: context.gamePhase,
+        powerBalance: context.powerBalance,
+        cardAdvantage: context.cardAdvantage,
+        pillsAdvantage: context.pillsAdvantage
+      });
 
-    return {
-      recommendedCard,
-      recommendedPills,
-      winProbability,
-      reasoning,
-      alternatives,
-      confidence
-    };
+      logger.debug(workerLogger, 'Analyzing available cards');
+      const cardAnalysis = this.analyzeAvailableCards(battleState.playerCards, context);
+      logger.debug(workerLogger, 'Card analysis completed', {
+        topCardScore: cardAnalysis[0]?.score,
+        cardsAnalyzed: cardAnalysis.length
+      });
+
+      logger.debug(workerLogger, 'Analyzing opponent threat');
+      const opponentThreat = this.analyzeOpponentThreat(battleState.opponentCards, battleState);
+      logger.debug(workerLogger, 'Opponent threat analyzed', {
+        threatLevel: opponentThreat.threatLevel,
+        avgPower: opponentThreat.avgPower,
+        avgDamage: opponentThreat.avgDamage
+      });
+      
+      // Advanced card selection algorithm
+      logger.debug(workerLogger, 'Selecting optimal card');
+      const recommendedCard = this.selectOptimalCard(cardAnalysis, opponentThreat, context);
+      logger.debug(workerLogger, 'Card selected', {
+        cardName: recommendedCard.name,
+        cardPower: recommendedCard.power,
+        cardDamage: recommendedCard.damage
+      });
+
+      logger.debug(workerLogger, 'Calculating optimal pills');
+      const recommendedPills = this.calculateOptimalPills(recommendedCard, opponentThreat, battleState, context);
+      logger.debug(workerLogger, 'Pills calculated', { recommendedPills });
+      
+      // Monte Carlo simulation for win probability
+      logger.debug(workerLogger, 'Running win probability simulation');
+      const winProbability = this.calculateWinProbability(recommendedCard, recommendedPills, battleState, context);
+      logger.debug(workerLogger, 'Win probability calculated', { winProbability });
+      
+      // Generate strategic reasoning
+      logger.debug(workerLogger, 'Generating strategic reasoning');
+      const reasoning = this.generateStrategicReasoning(recommendedCard, recommendedPills, context, opponentThreat);
+      
+      // Alternative strategies
+      logger.debug(workerLogger, 'Generating alternative strategies');
+      const alternatives = this.generateAlternatives(cardAnalysis, opponentThreat, context, battleState, recommendedCard);
+      logger.debug(workerLogger, 'Alternatives generated', { alternativesCount: alternatives.length });
+      
+      // Confidence based on multiple factors
+      logger.debug(workerLogger, 'Calculating confidence score');
+      const confidence = this.calculateConfidence(context, cardAnalysis, opponentThreat);
+      logger.debug(workerLogger, 'Confidence calculated', { confidence });
+
+      const recommendation = {
+        recommendedCard,
+        recommendedPills,
+        winProbability,
+        reasoning,
+        alternatives,
+        confidence
+      };
+
+      timer();
+      logger.info(workerLogger, '✅ Battle matchup analysis completed successfully', {
+        recommendation: {
+          cardName: recommendedCard.name,
+          pills: recommendedPills,
+          winProb: winProbability,
+          confidence
+        }
+      });
+
+      return recommendation;
+    } catch (error) {
+      timer();
+      logger.error(workerLogger, 'Battle matchup analysis failed', error as Error, {
+        battleState: {
+          playerCards: battleState.playerCards.length,
+          opponentCards: battleState.opponentCards.length
+        }
+      });
+      throw error;
+    }
   }
 
   private analyzeBattleContext(battleState: IBattleState): BattleContext {
@@ -329,12 +425,25 @@ const analyzer = new BattleAnalyzer();
 // Worker message handler
 self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
   const { type, data, requestId } = event.data;
+  const messageLogger = createMLLogger('MESSAGE_HANDLER');
+  
+  logger.info(messageLogger, 'Received worker message', {
+    type,
+    requestId,
+    dataSize: data ? JSON.stringify(data).length : 0,
+    timestamp: Date.now()
+  });
 
   try {
     switch (type) {
       case 'LOAD_MODEL':
+        logger.info(messageLogger, 'Processing LOAD_MODEL request', { requestId });
+        const loadTimer = logger.startTimer(messageLogger, 'Model Loading');
+        
         await analyzer.loadModel();
-        self.postMessage({
+        loadTimer();
+        
+        const modelResponse = {
           type: 'MODEL_LOADED',
           requestId,
           data: { 
@@ -345,55 +454,107 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
               capabilities: ['card_analysis', 'threat_assessment', 'strategic_planning']
             }
           }
+        };
+        
+        logger.info(messageLogger, 'Sending MODEL_LOADED response', {
+          requestId,
+          responseSize: JSON.stringify(modelResponse).length
         });
+        
+        self.postMessage(modelResponse);
         break;
 
       case 'ANALYZE':
+        logger.info(messageLogger, 'Processing ANALYZE request', { 
+          requestId,
+          hasBattleState: !!data?.battleState 
+        });
+        
         if (!data.battleState) {
+          logger.error(messageLogger, 'ANALYZE request missing battle state', undefined, { requestId });
           throw new Error('No battle state provided');
         }
 
+        const analysisTimer = logger.startTimer(messageLogger, 'Battle Analysis');
         const recommendation = analyzer.analyzeMatchup(data.battleState);
+        analysisTimer();
         
-        self.postMessage({
+        const analysisResponse = {
           type: 'ANALYSIS_COMPLETE',
           requestId,
           data: recommendation
+        };
+        
+        logger.info(messageLogger, 'Sending ANALYSIS_COMPLETE response', {
+          requestId,
+          responseSize: JSON.stringify(analysisResponse).length,
+          recommendedCard: recommendation.recommendedCard.name,
+          winProbability: recommendation.winProbability
         });
+        
+        self.postMessage(analysisResponse);
         break;
 
       default:
+        logger.warn(messageLogger, 'Unknown message type received', { 
+          type, 
+          requestId,
+          availableTypes: ['LOAD_MODEL', 'ANALYZE']
+        });
         throw new Error(`Unknown message type: ${type}`);
     }
   } catch (error) {
-    self.postMessage({
+    logger.error(messageLogger, 'Worker message processing failed', error as Error, {
+      messageType: type,
+      requestId,
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+    });
+    
+    const errorResponse = {
       type: 'ERROR',
       requestId,
       data: {
         message: error instanceof Error ? error.message : 'Unknown error',
         error: error
       }
+    };
+    
+    logger.info(messageLogger, 'Sending ERROR response', {
+      requestId,
+      errorMessage: errorResponse.data.message
     });
+    
+    self.postMessage(errorResponse);
   }
 };
 
 // Auto-load model when worker starts
+logger.info(workerLogger, 'Battle Worker starting auto-initialization');
+
 analyzer.loadModel().then(() => {
+  logger.info(workerLogger, '✅ Battle Worker auto-initialization completed successfully');
+  
   self.postMessage({
     type: 'MODEL_LOADED',
     requestId: 'init',
     data: { 
       success: true,
-      message: 'Advanced Battle Analyzer ready'
+      message: 'Advanced Battle Analyzer ready',
+      timestamp: Date.now(),
+      workerType: 'battle'
     }
   });
 }).catch((error) => {
+  logger.error(workerLogger, 'Battle Worker auto-initialization failed', error as Error);
+  
   self.postMessage({
     type: 'ERROR',
     requestId: 'init',
     data: {
       message: 'Failed to load advanced battle model',
-      error: error
+      error: error,
+      workerType: 'battle',
+      timestamp: Date.now()
     }
   });
 }); 

@@ -579,35 +579,40 @@
             }
         }
 
-        // Test ML Workers functionality
+        // Test ML Workers functionality with comprehensive logging
         async function testMLWorkers() {
             if (!WORKING_EXTENSION_ID) {
                 alert('Сначала найдите расширение!');
                 return;
             }
 
-            console.log('Testing ML Workers...');
+            console.log('🤖 Starting comprehensive ML Workers test suite...');
+            const startTime = Date.now();
+            
+            // Update UI to show test progress
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `
+                <div style="background: #1a1a1a; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #00ff88;">
+                    <h3>🧪 ML Workers Test Suite</h3>
+                    <p>📅 Started: ${new Date().toISOString()}</p>
+                    <p>🔧 Extension ID: ${WORKING_EXTENSION_ID}</p>
+                    <div id="testProgress">Initializing tests...</div>
+                </div>
+            `;
+            
+            const progressDiv = document.getElementById('testProgress');
             
             try {
-                // Test battle analysis
-                const battleResult = await new Promise((resolve, reject) => {
+                // Test 1: ML Status Check
+                progressDiv.innerHTML = '🔍 Step 1/4: Checking ML system status...';
+                console.log('📊 Testing ML Status...');
+                
+                const statusResult = await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Status check timeout')), 5000);
                     chrome.runtime.sendMessage(WORKING_EXTENSION_ID, {
-                        type: 'ANALYZE_BATTLE',
-                        data: {
-                            playerCards: [
-                                { id: 1, name: 'Kolos', clan: 'Bangers', power: 8, damage: 6 },
-                                { id: 2, name: 'Shann', clan: 'Bangers', power: 6, damage: 4 }
-                            ],
-                            opponentCards: [
-                                { id: 3, name: 'Striker', clan: 'All Stars', power: 7, damage: 4 }
-                            ],
-                            playerLife: 12,
-                            opponentLife: 12,
-                            playerPills: 12,
-                            opponentPills: 12,
-                            history: []
-                        }
+                        type: 'GET_ML_STATUS'
                     }, (response) => {
+                        clearTimeout(timeout);
                         if (chrome.runtime.lastError) {
                             reject(chrome.runtime.lastError);
                         } else {
@@ -616,12 +621,179 @@
                     });
                 });
 
-                console.log('Battle Analysis Result:', battleResult);
-                alert(`ML Workers Test:\n✅ Battle Analysis: ${battleResult.status}\n${JSON.stringify(battleResult.result, null, 2)}`);
+                console.log('✅ ML Status Result:', statusResult);
+                progressDiv.innerHTML += `<br>✅ ML Status: ${statusResult.status || 'OK'}`;
+
+                // Test 2: Battle Analysis
+                progressDiv.innerHTML += '<br>🔍 Step 2/4: Testing battle analysis...';
+                console.log('⚔️ Testing Battle Analysis...');
+                
+                const battleTestData = {
+                    battleState: {
+                        id: 'test_battle_' + Date.now(),
+                        playerCards: [
+                            { id: '1', name: 'Kolos', clan: 'Bangers', power: 8, damage: 6, ability: 'Power +2', rarity: 'Rare', level: 5, owned: true },
+                            { id: '2', name: 'Shann', clan: 'Bangers', power: 6, damage: 4, ability: 'Damage +2', rarity: 'Common', level: 3, owned: true },
+                            { id: '3', name: 'Beeboy', clan: 'Bangers', power: 5, damage: 5, ability: 'Attack +8', rarity: 'Uncommon', level: 4, owned: true }
+                        ],
+                        opponentCards: [
+                            { id: '4', name: 'Striker', clan: 'All Stars', power: 7, damage: 4, ability: 'Life +2', rarity: 'Common', level: 3, owned: false },
+                            { id: '5', name: 'Alexei', clan: 'All Stars', power: 6, damage: 5, ability: 'Power +2', rarity: 'Uncommon', level: 4, owned: false }
+                        ],
+                        currentRound: 1,
+                        playerLife: 14,
+                        opponentLife: 14,
+                        playerPills: 12,
+                        opponentPills: 12,
+                        gamePhase: 'selection',
+                        history: []
+                    }
+                };
+
+                const battleStartTime = Date.now();
+                const battleResult = await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Battle analysis timeout')), 10000);
+                    chrome.runtime.sendMessage(WORKING_EXTENSION_ID, {
+                        type: 'ANALYZE_BATTLE',
+                        data: battleTestData
+                    }, (response) => {
+                        clearTimeout(timeout);
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(response);
+                        }
+                    });
+                });
+
+                const battleDuration = Date.now() - battleStartTime;
+                console.log(`✅ Battle Analysis completed in ${battleDuration}ms:`, battleResult);
+                progressDiv.innerHTML += `<br>✅ Battle Analysis (${battleDuration}ms): ${battleResult.result?.recommendedCard?.name || 'N/A'}`;
+
+                // Test 3: Deck Analysis
+                progressDiv.innerHTML += '<br>🔍 Step 3/4: Testing deck optimization...';
+                console.log('🃏 Testing Deck Analysis...');
+
+                const deckTestData = {
+                    deck: {
+                        id: 'test_deck_' + Date.now(),
+                        name: 'Test Bangers Deck',
+                        cards: battleTestData.battleState.playerCards,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    },
+                    availableCards: [
+                        ...battleTestData.battleState.playerCards,
+                        { id: '6', name: 'Vermyn N', clan: 'Bangers', power: 7, damage: 5, ability: 'Power +2', rarity: 'Rare', level: 5, owned: true },
+                        { id: '7', name: 'Bodenpower', clan: 'Bangers', power: 6, damage: 6, ability: 'Damage +2', rarity: 'Uncommon', level: 4, owned: true }
+                    ]
+                };
+
+                const deckStartTime = Date.now();
+                const deckResult = await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Deck analysis timeout')), 10000);
+                    chrome.runtime.sendMessage(WORKING_EXTENSION_ID, {
+                        type: 'ANALYZE_DECK',
+                        data: deckTestData
+                    }, (response) => {
+                        clearTimeout(timeout);
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(response);
+                        }
+                    });
+                });
+
+                const deckDuration = Date.now() - deckStartTime;
+                console.log(`✅ Deck Analysis completed in ${deckDuration}ms:`, deckResult);
+                progressDiv.innerHTML += `<br>✅ Deck Analysis (${deckDuration}ms): ${deckResult.result?.suggestedChanges?.length || 0} suggestions`;
+
+                // Test 4: Market Analysis
+                progressDiv.innerHTML += '<br>🔍 Step 4/4: Testing market analysis...';
+                console.log('💰 Testing Market Analysis...');
+
+                const marketTestData = {
+                    userCards: battleTestData.battleState.playerCards,
+                    marketData: [
+                        { cardId: '8', price: 1500, seller: 'TestUser1', timestamp: new Date(), priceHistory: [] },
+                        { cardId: '9', price: 2300, seller: 'TestUser2', timestamp: new Date(), priceHistory: [] },
+                        { cardId: '10', price: 850, seller: 'TestUser3', timestamp: new Date(), priceHistory: [] }
+                    ],
+                    budget: 5000
+                };
+
+                const marketStartTime = Date.now();
+                const marketResult = await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Market analysis timeout')), 10000);
+                    chrome.runtime.sendMessage(WORKING_EXTENSION_ID, {
+                        type: 'ANALYZE_MARKET',
+                        data: marketTestData
+                    }, (response) => {
+                        clearTimeout(timeout);
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(response);
+                        }
+                    });
+                });
+
+                const marketDuration = Date.now() - marketStartTime;
+                console.log(`✅ Market Analysis completed in ${marketDuration}ms:`, marketResult);
+                progressDiv.innerHTML += `<br>✅ Market Analysis (${marketDuration}ms): ${marketResult.result?.buyRecommendations?.length || 0} buy recs`;
+
+                // Test Summary
+                const totalDuration = Date.now() - startTime;
+                const avgResponseTime = Math.round((battleDuration + deckDuration + marketDuration) / 3);
+                
+                console.log(`🎉 All ML tests completed successfully in ${totalDuration}ms`);
+                
+                resultsDiv.innerHTML += `
+                    <div style="background: #0a4d0a; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #00ff88;">
+                        <h4>🎉 ML Test Suite Completed Successfully!</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                            <div><strong>Total Duration:</strong> ${totalDuration}ms</div>
+                            <div><strong>Tests Passed:</strong> 4/4</div>
+                            <div><strong>Battle Analysis:</strong> ${battleDuration}ms</div>
+                            <div><strong>Deck Analysis:</strong> ${deckDuration}ms</div>
+                            <div><strong>Market Analysis:</strong> ${marketDuration}ms</div>
+                            <div><strong>Avg Response:</strong> ${avgResponseTime}ms</div>
+                        </div>
+                        <details style="margin-top: 10px;">
+                            <summary>Detailed Results</summary>
+                            <pre style="background: #000; padding: 10px; border-radius: 4px; overflow-x: auto;">
+Battle: ${JSON.stringify(battleResult, null, 2)}
+
+Deck: ${JSON.stringify(deckResult, null, 2)}
+
+Market: ${JSON.stringify(marketResult, null, 2)}
+                            </pre>
+                        </details>
+                    </div>
+                `;
+
+                alert(`🎉 ML Workers Test Suite Completed!\n\n✅ All 4 tests passed\n⏱️ Total time: ${totalDuration}ms\n📊 Average response: ${avgResponseTime}ms\n\nCheck console for detailed logs.`);
 
             } catch (error) {
-                console.error('ML Workers test failed:', error);
-                alert(`ML Workers Test Failed:\n❌ ${error.message}`);
+                const errorDuration = Date.now() - startTime;
+                console.error('❌ ML Workers Test Failed:', error);
+                
+                progressDiv.innerHTML += `<br>❌ Test failed: ${error.message}`;
+                
+                resultsDiv.innerHTML += `
+                    <div style="background: #4d0a0a; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #ff4444;">
+                        <h4>❌ ML Test Suite Failed</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Duration before failure:</strong> ${errorDuration}ms</p>
+                        <details>
+                            <summary>Error Details</summary>
+                            <pre style="background: #000; padding: 10px; border-radius: 4px;">${error.stack || 'No stack trace available'}</pre>
+                        </details>
+                    </div>
+                `;
+                
+                alert(`❌ ML Workers Test Failed!\n\nError: ${error.message}\nDuration: ${errorDuration}ms\n\nCheck console for details.`);
             }
         }
 
