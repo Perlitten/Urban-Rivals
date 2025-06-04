@@ -37,27 +37,35 @@
 
 ## 🚀 Quick Start
 
-### Installation
+### 📋 Installation & Setup
+
 ```bash
 # 1. Clone and setup
-git clone <repository-url>
-cd urban-rivals-ml-consultant
+git clone https://github.com/Perlitten/Urban-Rivals.git
+cd Urban-Rivals
 npm install
 
 # 2. Build the extension
 npm run build
-
-# 3. Install in Chrome
-# Open chrome://extensions/
-# Enable "Developer mode"
-# Click "Load unpacked extension"
-# Select the dist/ folder
 ```
 
-### Demo & Testing
-- Open `demo.html` in your browser to see the interface
-- Visit urbanrivals.com to test real functionality
-- Check popup status for connection confirmation
+### 🔧 Install in Chrome
+
+1. **Open Chrome Extensions:** `chrome://extensions/`
+2. **Enable Developer Mode** (toggle in top-right)
+3. **Click "Load unpacked extension"**
+4. **⚠️ ВАЖНО: Выберите папку `dist/`** (не корневую папку проекта!)
+5. **Убедитесь что расширение появилось в списке**
+
+### 🧪 Test & Verify
+
+1. **Диагностика:** Откройте `diagnose-extension.html` для автоматической проверки
+2. **ML Тестирование:** Откройте `demo.html` для тестирования ML функций  
+3. **Live Testing:** Зайдите на `urban-rivals.com` для реального тестирования
+
+### ⚠️ Troubleshooting
+
+Если что-то не работает - см. подробное руководство: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)
 
 ## 🔧 Development
 

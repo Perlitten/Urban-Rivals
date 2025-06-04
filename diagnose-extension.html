@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Диагностика Urban Rivals ML Extension</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00ff88;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .result {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 4px solid #00ff88;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status.success { background: #00ff88; color: #000; }
+        .status.error { background: #ff4444; color: #fff; }
+        .status.warning { background: #ffaa00; color: #000; }
+        .status.info { background: #4488ff; color: #fff; }
+        
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .checklist li {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .check-pass { border-left: 4px solid #00ff88; }
+        .check-fail { border-left: 4px solid #ff4444; }
+        .check-unknown { border-left: 4px solid #ffaa00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Диагностика Urban Rivals ML Extension</h1>
+        
+        <div class="test-section">
+            <h3>📋 Автоматическая диагностика</h3>
+            <button class="btn" onclick="runFullDiagnostics()">🚀 Запустить полную диагностику</button>
+            <div id="diagnosticsResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Поиск расширения</h3>
+            <button class="btn" onclick="findExtension()">🔍 Найти расширение</button>
+            <div id="extensionResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>⚡ Тест базовой функциональности</h3>
+            <button class="btn" onclick="testBasicFunctionality()" id="basicTestBtn" disabled>📡 Тест PING</button>
+            <button class="btn" onclick="testMLStatus()" id="mlStatusBtn" disabled>🤖 Статус ML</button>
+            <div id="basicTestResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Тест ML Workers</h3>
+            <button class="btn" onclick="testMLWorkers()" id="mlTestBtn" disabled>🧠 Тест ML анализа</button>
+            <div id="mlTestResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 Системная информация</h3>
+            <button class="btn" onclick="showSystemInfo()">ℹ️ Показать информацию</button>
+            <div id="systemInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        let EXTENSION_ID = null;
+        
+        // Автоматическая диагностика
+        async function runFullDiagnostics() {
+            const resultDiv = document.getElementById('diagnosticsResult');
+            resultDiv.innerHTML = '<h4>🔄 Выполняется диагностика...</h4>';
+            
+            const checks = [];
+            
+            // Проверка 1: Поиск расширения
+            try {
+                await findExtension(false);
+                checks.push({
+                    name: 'Поиск расширения',
+                    status: EXTENSION_ID ? 'pass' : 'fail',
+                    message: EXTENSION_ID ? `Найдено: ${EXTENSION_ID}` : 'Расширение не найдено'
+                });
+            } catch (error) {
+                checks.push({
+                    name: 'Поиск расширения',
+                    status: 'fail',
+                    message: `Ошибка: ${error.message}`
+                });
+            }
+            
+            // Проверка 2: PING тест
+            if (EXTENSION_ID) {
+                try {
+                    const pingResult = await sendMessageToExtension({type: 'PING'});
+                    checks.push({
+                        name: 'PING тест',
+                        status: pingResult && pingResult.pong ? 'pass' : 'fail',
+                        message: pingResult ? JSON.stringify(pingResult) : 'Нет ответа'
+                    });
+                } catch (error) {
+                    checks.push({
+                        name: 'PING тест',
+                        status: 'fail',
+                        message: `Ошибка: ${error.message}`
+                    });
+                }
+                
+                // Проверка 3: ML статус
+                try {
+                    const mlStatus = await sendMessageToExtension({type: 'GET_ML_STATUS'});
+                    checks.push({
+                        name: 'ML система',
+                        status: mlStatus && mlStatus.mlLoaded ? 'pass' : 'warning',
+                        message: mlStatus ? `ML загружен: ${mlStatus.mlLoaded}` : 'Нет данных'
+                    });
+                } catch (error) {
+                    checks.push({
+                        name: 'ML система',
+                        status: 'fail',
+                        message: `Ошибка: ${error.message}`
+                    });
+                }
+            }
+            
+            // Отображение результатов
+            let html = '<h4>📋 Результаты диагностики:</h4><ul class="checklist">';
+            checks.forEach(check => {
+                const statusClass = check.status === 'pass' ? 'check-pass' : 
+                                   check.status === 'fail' ? 'check-fail' : 'check-unknown';
+                const statusIcon = check.status === 'pass' ? '✅' : 
+                                  check.status === 'fail' ? '❌' : '⚠️';
+                
+                html += `<li class="${statusClass}">
+                    ${statusIcon} <strong>${check.name}:</strong> ${check.message}
+                </li>`;
+            });
+            html += '</ul>';
+            
+            const overallStatus = checks.every(c => c.status === 'pass') ? 'success' : 
+                                 checks.some(c => c.status === 'pass') ? 'warning' : 'error';
+            
+            html += `<div class="status ${overallStatus}">
+                Общий статус: ${overallStatus === 'success' ? '✅ Все проверки пройдены' : 
+                               overallStatus === 'warning' ? '⚠️ Есть проблемы' : '❌ Критические ошибки'}
+            </div>`;
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        // Поиск расширения
+        async function findExtension(showResult = true) {
+            const resultDiv = document.getElementById('extensionResult');
+            if (showResult) resultDiv.innerHTML = '🔍 Поиск расширения...';
+            
+            // Список возможных ID расширений для тестирования
+            const possibleIds = [
+                'eoggfhdgnpmmbglniapcifoigpkeadkg', // старый ID из кода
+                'jbmpnjhpfcbohpddcekklkhfhflmcdnn', // пример ID
+                'extension-id-placeholder'
+            ];
+            
+            // Пытаемся найти через chrome.management API
+            try {
+                const extensions = await chrome.management.getAll();
+                const urbanRivalsExt = extensions.find(ext => 
+                    ext.name.toLowerCase().includes('urban rivals') ||
+                    ext.name.toLowerCase().includes('ml consultant')
+                );
+                
+                if (urbanRivalsExt) {
+                    EXTENSION_ID = urbanRivalsExt.id;
+                    const result = `✅ Расширение найдено через Management API!<br>
+                        <div class="result">
+                        ID: ${EXTENSION_ID}<br>
+                        Название: ${urbanRivalsExt.name}<br>
+                        Версия: ${urbanRivalsExt.version}<br>
+                        Статус: ${urbanRivalsExt.enabled ? 'Включено' : 'Отключено'}
+                        </div>`;
+                    
+                    if (showResult) resultDiv.innerHTML = result;
+                    enableTestButtons();
+                    return;
+                }
+            } catch (error) {
+                console.log('Management API недоступен:', error);
+            }
+            
+            // Пробуем известные ID
+            for (const id of possibleIds) {
+                try {
+                    const response = await sendMessageToExtension({type: 'PING'}, id);
+                    if (response && response.pong) {
+                        EXTENSION_ID = id;
+                        const result = `✅ Расширение найдено!<br>
+                            <div class="result">
+                            ID: ${EXTENSION_ID}<br>
+                            Ответ: ${JSON.stringify(response, null, 2)}
+                            </div>`;
+                        
+                        if (showResult) resultDiv.innerHTML = result;
+                        enableTestButtons();
+                        return;
+                    }
+                } catch (error) {
+                    console.log(`Не удалось связаться с ${id}:`, error);
+                }
+            }
+            
+            if (showResult) {
+                resultDiv.innerHTML = `❌ Расширение не найдено!<br>
+                    <div class="result">
+                    Проверьте что расширение:<br>
+                    • Установлено в Chrome<br>
+                    • Включено<br>
+                    • Собрано корректно (npm run build)<br>
+                    • Установлено из папки dist/
+                    </div>`;
+            }
+        }
+        
+        function enableTestButtons() {
+            document.getElementById('basicTestBtn').disabled = false;
+            document.getElementById('mlStatusBtn').disabled = false;
+            document.getElementById('mlTestBtn').disabled = false;
+        }
+        
+        // Отправка сообщения расширению
+        function sendMessageToExtension(message, extensionId = EXTENSION_ID) {
+            return new Promise((resolve, reject) => {
+                if (!extensionId) {
+                    reject(new Error('Extension ID не найден'));
+                    return;
+                }
+                
+                const timeout = setTimeout(() => {
+                    reject(new Error('Timeout: нет ответа от расширения'));
+                }, 5000);
+                
+                chrome.runtime.sendMessage(extensionId, message, (response) => {
+                    clearTimeout(timeout);
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(response);
+                    }
+                });
+            });
+        }
+        
+        // Тест базовой функциональности
+        async function testBasicFunctionality() {
+            const resultDiv = document.getElementById('basicTestResult');
+            resultDiv.innerHTML = '📡 Тестирование PING...';
+            
+            try {
+                const response = await sendMessageToExtension({type: 'PING'});
+                resultDiv.innerHTML = `✅ PING тест успешен!<br>
+                    <div class="result">${JSON.stringify(response, null, 2)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `❌ PING тест неудачен!<br>
+                    <div class="result">Ошибка: ${error.message}</div>`;
+            }
+        }
+        
+        // Тест статуса ML
+        async function testMLStatus() {
+            const resultDiv = document.getElementById('basicTestResult');
+            resultDiv.innerHTML = '🤖 Проверка статуса ML...';
+            
+            try {
+                const response = await sendMessageToExtension({type: 'GET_ML_STATUS'});
+                const status = response.mlLoaded ? '✅ ML система загружена' : '⚠️ ML система не загружена';
+                
+                resultDiv.innerHTML = `${status}<br>
+                    <div class="result">${JSON.stringify(response, null, 2)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Ошибка проверки ML!<br>
+                    <div class="result">Ошибка: ${error.message}</div>`;
+            }
+        }
+        
+        // Тест ML Workers
+        async function testMLWorkers() {
+            const resultDiv = document.getElementById('mlTestResult');
+            resultDiv.innerHTML = '🧠 Тестирование ML анализа...';
+            
+            try {
+                const testData = {
+                    battleState: {
+                        id: 'test_' + Date.now(),
+                        playerCards: [
+                            {id: '1', name: 'Тестовая карта', power: 7, damage: 5, clan: 'Bangers', 
+                             ability: 'Test', rarity: 'Common', level: 3, owned: true}
+                        ],
+                        opponentCards: [
+                            {id: '2', name: 'Противник', power: 6, damage: 4, clan: 'All Stars',
+                             ability: 'Test', rarity: 'Common', level: 3, owned: false}
+                        ],
+                        currentRound: 1,
+                        playerLife: 14,
+                        opponentLife: 14,
+                        playerPills: 12,
+                        opponentPills: 12,
+                        gamePhase: 'selection',
+                        history: []
+                    }
+                };
+                
+                const startTime = Date.now();
+                const response = await sendMessageToExtension({
+                    type: 'ANALYZE_BATTLE',
+                    data: testData
+                });
+                const duration = Date.now() - startTime;
+                
+                if (response.status === 'success') {
+                    resultDiv.innerHTML = `✅ ML анализ успешен! (${duration}ms)<br>
+                        <div class="result">
+                        Рекомендуемая карта: ${response.result.recommendedCard?.name || 'N/A'}<br>
+                        Пиллсы: ${response.result.recommendedPills || 'N/A'}<br>
+                        Вероятность победы: ${((response.result.winProbability || 0) * 100).toFixed(1)}%<br>
+                        <details>
+                            <summary>Полный ответ</summary>
+                            <pre>${JSON.stringify(response, null, 2)}</pre>
+                        </details>
+                        </div>`;
+                } else {
+                    resultDiv.innerHTML = `❌ ML анализ неудачен!<br>
+                        <div class="result">${JSON.stringify(response, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ Ошибка ML теста!<br>
+                    <div class="result">Ошибка: ${error.message}</div>`;
+            }
+        }
+        
+        // Системная информация
+        function showSystemInfo() {
+            const resultDiv = document.getElementById('systemInfo');
+            
+            const info = {
+                userAgent: navigator.userAgent,
+                chrome: {
+                    version: /Chrome\/([0-9.]+)/.exec(navigator.userAgent)?.[1] || 'Unknown',
+                    platform: navigator.platform
+                },
+                extension: {
+                    id: EXTENSION_ID,
+                    found: !!EXTENSION_ID
+                },
+                timestamp: new Date().toISOString(),
+                url: window.location.href
+            };
+            
+            resultDiv.innerHTML = `<div class="result"><pre>${JSON.stringify(info, null, 2)}</pre></div>`;
+        }
+        
+        // Автозапуск при загрузке страницы
+        window.addEventListener('load', () => {
+            setTimeout(runFullDiagnostics, 1000);
+        });
+    </script>
+</body>
+</html> 
