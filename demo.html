@@ -349,6 +349,7 @@
                     <strong>ML Стратегия:</strong> <span id="mlStrategyStatus">Оценка...</span>
                 </div>
                 <button class="btn" onclick="checkSystemStatus()">🔄 Обновить статус</button>
+                <button class="btn" onclick="testMLWorkers()">🧪 Тест ML Workers</button>
             </div>
 
             <div class="features-grid">
@@ -543,11 +544,16 @@
                     
                     if (response && response.status) {
                         let effectiveness = response.effectiveness || 'N/A';
+                        const workersInfo = response.workersLoaded ? ' (Workers: Active)' : ' (Workers: Loading)';
+                        
                         if (response.status === 'optimal'){
-                            mlStatusElement.textContent = `✅ Оптимальная (эффективность ${effectiveness}%)`;
+                            mlStatusElement.textContent = `✅ Оптимальная (эффективность ${effectiveness}%)${workersInfo}`;
                             mlStatusElement.className = 'status-optimal';
+                        } else if (response.status === 'loading') {
+                            mlStatusElement.textContent = `🔄 Инициализация ML Workers...${workersInfo}`;
+                            mlStatusElement.className = 'status-suboptimal';
                         } else {
-                            mlStatusElement.textContent = `⚠️ ${response.description || 'Требует корректировки'} (эффективность ${effectiveness}%)`;
+                            mlStatusElement.textContent = `⚠️ ${response.description || 'Требует корректировки'} (эффективность ${effectiveness}%)${workersInfo}`;
                             mlStatusElement.className = 'status-suboptimal';
                         }
                     } else {
@@ -570,6 +576,52 @@
                         mlStatusElement.className = 'status-suboptimal';
                     }
                 }, 800);
+            }
+        }
+
+        // Test ML Workers functionality
+        async function testMLWorkers() {
+            if (!WORKING_EXTENSION_ID) {
+                alert('Сначала найдите расширение!');
+                return;
+            }
+
+            console.log('Testing ML Workers...');
+            
+            try {
+                // Test battle analysis
+                const battleResult = await new Promise((resolve, reject) => {
+                    chrome.runtime.sendMessage(WORKING_EXTENSION_ID, {
+                        type: 'ANALYZE_BATTLE',
+                        data: {
+                            playerCards: [
+                                { id: 1, name: 'Kolos', clan: 'Bangers', power: 8, damage: 6 },
+                                { id: 2, name: 'Shann', clan: 'Bangers', power: 6, damage: 4 }
+                            ],
+                            opponentCards: [
+                                { id: 3, name: 'Striker', clan: 'All Stars', power: 7, damage: 4 }
+                            ],
+                            playerLife: 12,
+                            opponentLife: 12,
+                            playerPills: 12,
+                            opponentPills: 12,
+                            history: []
+                        }
+                    }, (response) => {
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve(response);
+                        }
+                    });
+                });
+
+                console.log('Battle Analysis Result:', battleResult);
+                alert(`ML Workers Test:\n✅ Battle Analysis: ${battleResult.status}\n${JSON.stringify(battleResult.result, null, 2)}`);
+
+            } catch (error) {
+                console.error('ML Workers test failed:', error);
+                alert(`ML Workers Test Failed:\n❌ ${error.message}`);
             }
         }
 
