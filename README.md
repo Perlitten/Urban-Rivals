@@ -79,11 +79,8 @@ npm run lint         # Code linting and formatting
 
 ### ML Model Training
 ```bash
-# Windows
-scripts/train-ml-models.bat
-
-# macOS/Linux  
-./scripts/train-ml-models.sh
+# Single command for all platforms
+npm run train:ml
 ```
 
 ### Project Structure

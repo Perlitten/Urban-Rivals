@@ -52,10 +52,8 @@
 
 ### Активация полного ML:
 ```bash
-# Запустите тренировку моделей
-scripts/train-ml-models.bat    # Windows
-# или
-./scripts/train-ml-models.sh   # macOS/Linux
+# Запустите тренировку моделей (кроссплатформенно)
+npm run train:ml
 
 # Пересоберите проект
 npm run build
