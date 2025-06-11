@@ -139,6 +139,14 @@
             <button class="btn" onclick="showSystemInfo()">ℹ️ Показать информацию</button>
             <div id="systemInfo"></div>
         </div>
+
+        <div class="test-section">
+            <h3>🛠️ Команды обучения</h3>
+            <p>Нажмите, чтобы скопировать команды для терминала:</p>
+            <button class="btn" onclick="copyTrainCommand()">📋 npm run train:ml</button>
+            <button class="btn" onclick="copyStatusCommand()">📋 npm run ml:status</button>
+            <div id="copyMessage"></div>
+        </div>
     </div>
 
     <script>
@@ -233,7 +241,6 @@
             
             // Список возможных ID расширений для тестирования
             const possibleIds = [
-                'eoggfhdgnpmmbglniapcifoigpkeadkg', // старый ID из кода
                 'jbmpnjhpfcbohpddcekklkhfhflmcdnn', // пример ID
                 'extension-id-placeholder'
             ];
@@ -433,6 +440,20 @@
             
             resultDiv.innerHTML = `<div class="result"><pre>${JSON.stringify(info, null, 2)}</pre></div>`;
         }
+
+        // Копирование команд обучения
+        async function copyText(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const msg = document.getElementById('copyMessage');
+                msg.textContent = `Скопировано: ${text}`;
+            } catch (err) {
+                alert('Не удалось скопировать: ' + err);
+            }
+        }
+
+        function copyTrainCommand() { copyText('npm run train:ml'); }
+        function copyStatusCommand() { copyText('npm run ml:status'); }
         
         // Автозапуск при загрузке страницы
         window.addEventListener('load', () => {

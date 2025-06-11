@@ -257,6 +257,16 @@ async function initializeWorker() {
   }
 }
 
+// Automatically clear browser cache
+async function clearBrowserCache() {
+  try {
+    await chrome.browsingData.remove({}, { cache: true });
+    console.log('[BG_COMPREHENSIVE] Cache cleared automatically');
+  } catch (error) {
+    console.error('[BG_COMPREHENSIVE] Failed to clear cache:', error);
+  }
+}
+
 // Activity ping (using chrome.storage instead of timers)
 function recordActivity() {
   lastActivity = Date.now();
@@ -271,12 +281,14 @@ function recordActivity() {
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log(`[BG_COMPREHENSIVE] onInstalled: ${details.reason}`);
   await initializeWorker();
+  await clearBrowserCache();
 });
 
 // Browser startup
 chrome.runtime.onStartup.addListener(async () => {
   console.log('[BG_COMPREHENSIVE] onStartup');
   await initializeWorker();
+  await clearBrowserCache();
 });
 
 // External messages (from localhost test pages)
