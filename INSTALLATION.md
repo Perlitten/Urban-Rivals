@@ -61,6 +61,7 @@ npm run build
    # Проверить метрики моделей
    npm run ml:status
    ```
+   Команды легко скопировать на странице `diagnose-extension.html` (раздел «Команды обучения»).
 
 2. Модели будут сохранены в `public/assets/models/`
 3. Пересоберите расширение: `npm run build`
