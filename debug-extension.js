@@ -229,9 +229,7 @@ async function findWorkingExtensionId() {
   
   // List of possible extension IDs to test
   const testIds = [
-    chrome.runtime?.id, // Current extension ID if available
-    'eoggfhdgnpmmbglniapcifoigpkeadkg', // Old hardcoded ID
-    'invalid' // This will definitely fail
+    chrome.runtime?.id // Current extension ID if available
   ].filter(Boolean);
   
   for (const extensionId of testIds) {
