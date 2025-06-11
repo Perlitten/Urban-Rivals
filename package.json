@@ -12,7 +12,9 @@
     "lint": "eslint src/**/*.{ts,tsx}",
     "lint:fix": "eslint src/**/*.{ts,tsx} --fix",
     "format": "prettier --write src/**/*.{ts,tsx}",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "train:ml": "node scripts/run-train-ml.js",
+    "ml:status": "node scripts/ml-status.js"
   },
   "keywords": [
     "urban-rivals",

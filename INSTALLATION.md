@@ -56,11 +56,10 @@ npm run build
 ### Тренировка собственных моделей
 1. Запустите скрипт тренировки:
    ```bash
-   # Windows
-   scripts/train-ml-models.bat
+   npm run train:ml
    
-   # macOS/Linux
-   ./scripts/train-ml-models.sh
+   # Проверить метрики моделей
+   npm run ml:status
    ```
 
 2. Модели будут сохранены в `public/assets/models/`
